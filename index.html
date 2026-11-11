@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#10293e" />
+  <meta name="description" content="Protótipo local de distribuição diária de pacientes por escalas de enfermagem." />
+  <title>Escala de Enfermagem · Distribuição Diária</title>
+  <style>:root{color-scheme:light;--navy:#10293e;--navy-2:#193c55;--teal:#087b7c;--teal-soft:#e8f7f5;--blue:#236398;--bg:#f3f6f9;--surface:#fff;--surface-2:#f8fafc;--ink:#173247;--muted:#647689;--line:#dce4eb;--rose:#ab4c59;--rose-soft:#fff0f1;--amber:#9a6312;--amber-soft:#fff5df;--green:#1b7a62;--green-soft:#e7f6ef;--shadow:0 8px 28px rgba(21,48,69,.055)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',Arial,sans-serif;font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+a{color:var(--blue)}
+.app-shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.sidebar{background:var(--navy);color:#d8e7ef;padding:30px 17px 20px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:12px;align-items:center;margin:0 8px 35px}
+.brand-icon{width:43px;height:43px;border-radius:12px;background:#1b536b;display:grid;place-items:center;box-shadow:inset 0 0 0 1px #3d6c80;color:#b8f0e9;font-size:22px}
+.brand strong{display:block;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;letter-spacing:-.3px}
+.brand span{font-size:11px;color:#b0c9d6;letter-spacing:.02em}
+.nav-title{margin:8px 15px 12px;color:#7da4b9;text-transform:uppercase;font-size:10px;font-weight:800;letter-spacing:.13em}
+.nav{display:grid;gap:6px}
+.nav-btn{width:100%;background:transparent;border:0;color:#bbd0db;border-radius:10px;padding:11px 12px;text-align:left;display:flex;gap:12px;align-items:center;font-size:13px;font-weight:600}
+.nav-btn:hover{background:#20425a;color:#fff}.nav-btn.active{background:#25546a;color:#fff;box-shadow:inset 3px 0 0 #6de1cf}
+.nav-icon{font-size:17px;width:24px;text-align:center}
+.sidebar-foot{margin-top:auto;border-top:1px solid #365469;padding:18px 10px 0;color:#a6c3d0;font-size:11px}
+.sidebar-foot strong{color:#e4f5f5;display:block;margin-bottom:5px}.sidebar-foot p{margin:0}
+.workspace{min-width:0;padding:28px clamp(18px,3vw,49px) 45px;max-width:1650px;width:100%;margin:auto}
+.topline{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:26px}
+.crumb{color:#738698;font-size:12px;letter-spacing:.03em}.crumb strong{color:#254b64}
+.demo-flag{background:#e3f0f8;color:#356e92;border-radius:30px;font-size:10px;letter-spacing:.07em;font-weight:800;padding:7px 11px}
+.page-header{display:flex;justify-content:space-between;align-items:end;gap:25px;margin-bottom:22px;flex-wrap:wrap}
+.eyebrow{text-transform:uppercase;color:#087d81;font-size:11px;font-weight:800;letter-spacing:.15em;margin:0 0 5px}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',Arial,sans-serif;line-height:1.3;letter-spacing:-.032em}
+h1{margin:0;font-size:clamp(24px,2.4vw,34px);font-weight:800}h2{font-size:19px;margin:0}h3{font-size:15px;margin:0}
+.subtitle{color:var(--muted);margin:6px 0 0;max-width:670px}
+.toolbar-actions,.row-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:10px 15px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:700;font-size:12px;transition:transform .12s,background .12s;white-space:nowrap}
+.btn:hover{background:#f3f9fb;transform:translateY(-1px)}
+.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal)}.btn-primary:hover{background:#086d6e;color:#fff}
+.btn-dark{background:var(--navy);color:#fff;border-color:var(--navy)}.btn-dark:hover{background:#204661;color:#fff}
+.btn-danger{border-color:#f1c7cc;background:var(--rose-soft);color:var(--rose)}
+.btn-quiet{border:0;background:transparent;padding:8px 10px}.btn-sm{padding:7px 10px;font-size:11px;border-radius:8px}
+.control-bar{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:var(--shadow);margin-bottom:19px}
+.controls-left{display:flex;gap:15px;align-items:center;flex-wrap:wrap}
+.label-field{display:grid;gap:5px;font-size:11px;color:var(--muted);font-weight:700}
+.control,.text-input,.mini-select{outline:none;border:1px solid #d7e2e9;border-radius:9px;background:#fff;color:var(--ink);padding:9px 11px;min-width:135px}
+.control:focus,.text-input:focus,.mini-select:focus{border-color:#0c9795;box-shadow:0 0 0 3px #d6f2ef}
+.text-input{width:100%}.mini-select{min-width:unset;width:100%;padding:7px 8px;font-size:12px}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.metric-head{display:flex;justify-content:space-between;align-items:center;color:#698092;font-weight:700;font-size:11px;gap:5px}
+.metric-icon{font-size:18px;color:var(--teal)}
+.metric-value{font-size:29px;line-height:1.3;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;margin:8px 0 2px}
+.metric-foot{font-size:11px;color:#8899a8}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.panel-header{padding:21px 23px 17px;display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap;border-bottom:1px solid #ecf0f3}
+.panel-body{padding:20px 23px}.panel-subtitle{margin:4px 0 0;color:var(--muted);font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:100px;padding:5px 9px;background:#edf4f8;color:#41657b;font-size:11px;font-weight:800;white-space:nowrap}
+.pill-teal{background:var(--teal-soft);color:#137b74}.pill-amber{background:var(--amber-soft);color:var(--amber)}.pill-red{background:var(--rose-soft);color:var(--rose)}.pill-green{background:var(--green-soft);color:var(--green)}
+.notice{border:1px solid #c4e8e4;background:#effbfa;color:#196a6b;padding:13px 15px;border-radius:11px;display:flex;gap:9px;align-items:start;margin-bottom:18px;font-size:12px}
+.notice.warning{border-color:#f4d8a6;background:#fff9ed;color:#81550f}.notice.error{border-color:#f3c0c9;background:#fff4f5;color:#933947}
+.notice strong{font-weight:800}.notice ul{margin:7px 0 0;padding-left:17px}
+.empty{padding:39px 25px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--ink);font-size:16px;margin-bottom:7px}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:800px}
+th,td{text-align:left;padding:13px 13px;vertical-align:middle;border-bottom:1px solid #eaf0f3;font-size:12px}
+th{color:#617688;font-size:10px;letter-spacing:.07em;text-transform:uppercase;background:#f7fafb;font-weight:800}
+tr:last-child td{border-bottom:0}.person-title{font-weight:800;color:var(--ink);display:block}.person-meta{color:#81909d;font-size:10px}
+.assignments{display:flex;gap:5px;flex-wrap:wrap;align-items:center;max-width:370px}
+.bed-tag{border:1px solid #bcdedc;background:#f0faf8;color:#216e6c;padding:5px 7px;font-size:11px;font-weight:800;border-radius:7px;white-space:nowrap}
+button.bed-tag:hover{background:#d9f4ef;border-color:#50b6a8}
+.bed-tag.bed-iso{background:#fff7e7;border-color:#f0dcae;color:#8b5d1d}
+.text-muted{color:#8796a3}.num{font-variant-numeric:tabular-nums;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+.empty-assignment{border:1px dashed #d5e4ec;background:#fafcfd;padding:17px;border-radius:10px;color:var(--muted);text-align:center}
+.report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.report-col{padding:18px 18px;background:#fbfcfe;border:1px solid #e4ebf1;border-radius:12px}
+.report-col h3{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.report-line{padding:9px 0;border-top:1px solid #e6edf1}
+.report-line:first-of-type{border-top:0}
+.report-line strong{font-size:11px;display:block;margin-bottom:3px}
+.report-line .ids{font-size:12px;color:#4c687c;line-height:1.75;overflow-wrap:anywhere}
+.report-line.vacant strong{color:#457e88}.report-line.blocked strong{color:#986c34}.report-line.isolation strong{color:#a64c5c}
+.section-kicker{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.beds-toolbar{display:flex;gap:11px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.beds-toolbar input{max-width:230px}
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:13px}
+.room-card{border:1px solid #dfe8ed;border-radius:12px;background:#fff;overflow:hidden}
+.room-heading{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:#f6fafb;border-bottom:1px solid #e9eff2}
+.room-heading h4{font-size:14px;margin:0}.room-heading small{font-size:11px;color:#79909b}
+.bed-editor{padding:12px 13px;border-bottom:1px solid #e9eef1}.bed-editor:last-child{border-bottom:0}
+.bed-editor-top{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:9px}.bed-editor-top strong{font-size:12px}
+.bed-editor-top select{width:70%;max-width:185px}
+.bed-editor.hollow{background:#f7f9fb}.bed-editor.isolated-locked{background:#fff6f6}
+.bed-editor.flags{padding:0}.flag-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+.checkline{font-size:11px;color:#435e70;display:flex;align-items:center;gap:6px;font-weight:600}
+.checkline input{accent-color:var(--teal);width:15px;height:15px;margin:0}
+.bed-details{display:grid;gap:9px}.bed-details select{margin-top:2px}
+.inline-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.staff-list{display:grid;gap:11px}
+.staff-card{border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;grid-template-columns:65px minmax(165px,1.2fr) minmax(135px,.7fr) minmax(220px,1.2fr) auto;gap:14px;align-items:center;background:#fff}
+.staff-card.inactive{background:#fafbfc;opacity:.75}
+.staff-number{background:#e8f4f6;color:#236b7b;border-radius:10px;padding:10px;text-align:center;font-weight:800;font-size:18px}
+.staff-number small{font-size:9px;text-transform:uppercase;letter-spacing:.07em;display:block}
+.staff-rules{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.status-toggle{display:flex;gap:7px;align-items:center;white-space:nowrap;font-weight:700;font-size:11px}
+.status-toggle input{width:16px;height:16px;accent-color:var(--teal)}
+.staff-controls{display:grid;gap:7px}.staff-controls .label-field{min-width:100px}
+.form-note{font-size:11px;color:#758895}
+.legend{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.legend span{font-size:11px;color:var(--muted)}
+.rule-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.rule-item{padding:16px;border:1px solid var(--line);background:#fbfdfd;border-radius:11px}
+.rule-item strong{font-size:12px;display:block;margin-bottom:6px}.rule-item p{color:#698091;margin:0;font-size:12px}
+.timeline{display:grid;gap:10px}.timeline-item{display:flex;gap:15px;justify-content:space-between;align-items:center;background:#fbfcfd;border:1px solid var(--line);border-radius:11px;padding:14px}
+.timeline-item strong{display:block;font-size:13px}.timeline-item span{color:var(--muted);font-size:11px}
+.footer-note{font-size:11px;color:#8a9baa;line-height:1.7;text-align:center;margin:23px 0 0}
+.modal-overlay{position:fixed;z-index:20;inset:0;background:rgba(8,24,37,.62);display:grid;place-items:center;padding:15px}
+.modal{width:min(100%,520px);max-height:min(90vh,800px);overflow:auto;background:#fff;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.2)}
+.modal-head{padding:20px 23px;border-bottom:1px solid var(--line);display:flex;align-items:start;justify-content:space-between}
+.modal-head h2{font-size:17px}.modal-body{padding:20px 23px;display:grid;gap:14px}.modal-foot{padding:16px 23px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.modal-close{border:0;background:#f2f5f7;border-radius:8px;font-size:22px;width:31px;height:31px;color:#65788a}
+.modal-help{font-size:12px;color:var(--muted)}
+.toast{position:fixed;z-index:35;right:24px;bottom:24px;background:#15384b;color:#fff;box-shadow:0 15px 40px #0002;padding:13px 17px;border-radius:11px;font-weight:700;font-size:12px;max-width:440px}
+.toast.error{background:#973c4f}
+.split-sum{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.print-only{display:none}
+@media(max-width:1150px){.staff-card{grid-template-columns:60px 1fr 1fr;gap:11px}.staff-rules{grid-column:2 / 4}.staff-actions{grid-column:2/4}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.app-shell{grid-template-columns:1fr}.sidebar{height:auto;position:relative;padding:12px 16px}.brand{margin:0 0 9px}.nav-title,.sidebar-foot{display:none}.nav{display:flex;overflow:auto;padding-bottom:1px}.nav-btn{width:auto;white-space:nowrap}.workspace{padding:19px 14px 28px}.topline{margin-bottom:16px}.page-header{align-items:start;gap:13px}.toolbar-actions{width:100%}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.report-grid,.rule-list{grid-template-columns:1fr}.staff-card{grid-template-columns:55px 1fr}.staff-controls,.staff-rules,.staff-actions{grid-column:1 / -1}.staff-rules{grid-template-columns:1fr 1fr}.staff-card .label-field{min-width:0}}
+@media(max-width:460px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{padding:11px}.metric-value{font-size:23px}.page-header h1{font-size:24px}.control-bar{padding:13px}.controls-left{width:100%}.controls-left .label-field{flex:1}.control{width:100%;min-width:0}.room-grid{grid-template-columns:1fr}.panel-header,.panel-body{padding:15px}.btn{padding:9px 11px}.staff-rules{grid-template-columns:1fr}}
+@media print{
+  @page{size:A4 landscape;margin:11mm}
+  body{background:#fff;font-family:Arial,sans-serif;color:#1a2630;font-size:9px}
+  .sidebar,.topline,.toolbar-actions,.control-bar,.metrics,.notice,.footer-note,.no-print,.modal-overlay,.toast,.panel:not(.print-panel),.page-header .subtitle{display:none!important}
+  .app-shell{display:block}.workspace{max-width:none;padding:0;margin:0}.page-header{margin:0 0 10px}
+  h1{font-size:20px}.eyebrow{font-size:9px}.print-only{display:block!important}.print-only .print-meta{font-size:10px;color:#536574}
+  .panel{box-shadow:none;border:1px solid #ccd5dc;border-radius:3px;margin:8px 0;break-inside:avoid}
+  .panel-header{padding:7px 10px}.panel-body{padding:8px 10px}.panel-header h2{font-size:12px}.panel-subtitle{font-size:9px}
+  table{min-width:0}th,td{font-size:9px;padding:6px 8px;border-color:#ddd}th{font-size:8px}
+  .bed-tag{font-size:9px;border-radius:2px;padding:2px 4px}.pill{font-size:8px;padding:2px 5px}
+  .report-grid{gap:8px}.report-col{padding:9px}.report-col h3{font-size:10px}.report-line{padding:5px 0}.report-line strong{font-size:9px}.report-line .ids{font-size:9px;line-height:1.4}
+  button.bed-tag{color:#174d4b}
+  .print-foot{display:block!important;font-size:9px;padding-top:12px;border-top:1px solid #888;margin-top:10px}
+  .panel.print-panel{display:block!important}
+}
+/* Revisão e personalização antes de imprimir */
+.review-cta{justify-content:flex-end;margin:0 0 16px}
+.review-actions{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin:7px 0 16px}
+.review-actions .form-note{max-width:460px}
+.edit-table{min-width:710px}
+.edit-table td:nth-child(1){width:90px}
+.edit-table td:nth-child(2){width:90px}
+.edit-table td:nth-child(4){width:75px}
+.edit-table td:last-child{width:260px}
+.edit-table tr:hover{background:#f8fbfc}
+.edit-select{width:100%;min-width:210px;font-weight:700}
+.print-editor-fields{display:grid;gap:17px;max-width:800px}
+.print-editor-fields textarea{min-height:90px;line-height:1.55;resize:vertical}
+.print-editor-fields .checkline{width:max-content;max-width:100%;font-size:12px}
+.print-observations .panel-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.6}
+@media print{
+  .print-observations{break-inside:avoid}
+  .print-observations .panel-body{font-size:10px;line-height:1.45}
+  .print-foot p{margin:6px 0 0}
+}
+
+/* v1.4 — acréscimo/transferência livre antes da impressão */
+.manual-add-form{display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:14px;border:1px dashed #b8dcd8;border-radius:11px;background:#f5fbfa;margin:8px 0 9px}
+.manual-add-form .label-field{min-width:190px;flex:1}
+.manual-add-form .btn{min-height:34px}
+
+.print-manual-note{margin:9px 0;padding:8px 12px;border:1px solid #dbbd79;background:#fff9e9;color:#684b1a;font-size:10px;line-height:1.45}
+@media print {.print-manual-note{break-inside:avoid;padding:6px 9px;font-size:9px}}
+/* Edição direta e preenchimento rápido */
+.destination{border:0;background:none;text-align:left;padding:8px 0;color:inherit;font:inherit;font-weight:700;cursor:pointer}.destination:hover{text-decoration:underline;color:#087e83}
+.bed-tag[draggable]{cursor:grab;min-height:36px}.bed-tag[aria-pressed="true"]{outline:3px solid #087e83;background:#d7f5ee}.drop-row:hover{background:#f0faf8}.drop-row td{min-height:65px}
+details.panel>summary{padding:18px;cursor:pointer;font-weight:600}.status-buttons{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:10px 0}.status-choice{border:1px solid #ccd6dc;border-radius:7px;padding:8px 4px;background:#fff;color:#435565;cursor:pointer;font-size:11px;min-height:36px}.status-choice.chosen{background:#0a7479;border-color:#0a7479;color:#fff;font-weight:700}.batch-check{font-size:11px;color:#536575}.batch-toolbar{background:#fff;border:1px solid #ccd6dc;border-radius:12px;padding:14px;margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}.batch-toolbar .row-actions{width:100%;flex-wrap:wrap}.bed-extra summary{cursor:pointer;color:#087e83;font-size:12px;padding:10px 0}.bed-extra .flag-grid{margin-top:8px}.bed-details .flag-grid{align-items:center}.bed-details small{font-size:10px}.bed-details input[type=number]{width:100%;min-width:0}.room-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}.bed-editor-top{gap:8px}.review-actions{margin:18px 0;gap:12px;flex-wrap:wrap;display:flex;align-items:center}
+@media print{.destination{padding:0;cursor:default}.bed-tag[aria-pressed="true"]{outline:none}.drop-row:hover{background:transparent}.print-panel{break-inside:auto}.print-panel tr{break-inside:avoid}.bed-tag[draggable]{min-height:0}.print-manual-note{font-size:9px}}
+
+.pending-assignment{display:flex;gap:12px;padding:12px;border:1px solid #dfb7a0;border-radius:8px;background:#fff7ed}.pending-assignment .bed-tag{margin:6px 4px 0 0}
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+/**
+ * Motor de distribuição assistencial — protótipo local, sem dependências.
+ * Todos os dados são fictícios até que o usuário os preencha.
+ * As relações de proximidade são preferências informadas, NÃO distâncias aferidas.
+ */
+const POST_A = [201,202,203,204,205,206,207,208,220,221,222,223,224];
+const POST_B = [209,210,211,212,214,215,216,217,218,219];
+const ROOMS = [...POST_A, ...POST_B].sort((a,b) => a-b);
+const BEDS = [...POST_A.map(n => ({room:n,post:'A'})), ...POST_B.map(n => ({room:n,post:'B'}))]
+  .flatMap(item => ['A','B'].map(suffix => ({id:`${item.room}${suffix}`, ...item})));
+const TRANSITION_A = [220,221,222,223];
+const TRANSITION_B = [217,218,219];
+const MAX_PATIENTS = 7;
+const MAX_BATHS = 3;
+const EXCEPTIONAL_MAX_BATHS = 4;
+// Escala 1 mantém seus leitos habituais (201 a 205) e pode receber
+// pacientes EXTRAS exclusivamente dos leitos 223A/B e 224A/B.
+const ESCALA_1_BASE_ROOMS = new Set([201,202,203,204,205]);
+const ESCALA_1_BEDS = new Set(['223A','223B','224A','224B']);
+const SHARED_ALLOWED_SLOTS = new Set([4,7]);
+function techCount(staff) { return staff.filter(s => s.active && s.role !== 'nurse').length; }
+function bathLimit(staff) { return techCount(staff) < 8 ? EXCEPTIONAL_MAX_BATHS : MAX_BATHS; }
+function canUseSlot(bed,staff) { return staff?.slot !== 1 || ESCALA_1_BASE_ROOMS.has(Number(bed.id.slice(0,3))) || ESCALA_1_BEDS.has(bed.id); }
+
+function staffPost(s) { return s.post === 'A' || s.post === 'B' ? s.post : ([1,2,3,4,9].includes(s.slot) ? 'A' : 'B'); }
+function postAllowed(b,s) { return SHARED_ALLOWED_SLOTS.has(s.slot) || bedInfo(b.id).post === staffPost(s); }
+function fugulinScore(b) { const n=Number(b.fugulin); return Number.isInteger(n)&&n>=9&&n<=36?n:null; }
+function fugulinCategory(b) {
+  const n=fugulinScore(b);
+  return n===null?'Não informado':n<=14?'Cuidados mínimos':n<=20?'Cuidados intermediários':n<=26?'Alta dependência':n<=31?'Cuidados semi-intensivos':'Cuidados intensivos';
+}
+const FUGULIN_CATEGORIES=['Cuidados mínimos','Cuidados intermediários','Alta dependência','Cuidados semi-intensivos','Cuidados intensivos','Não informado'];
+
+const HOME_ROOMS = {
+  1:[201,202,203,204,205,223,224],
+  2:[206,207,208,220,222,223,224],
+  3:[220,221,222,223,224],
+  4:[217,218,219,220,221,222,223],
+  5:[209,218,219],
+  6:[210,216,217],
+  7:[211,212,214,215],
+  8:[214,215,216,217,218,219],
+  9:[217,218,219,220,221,222,223]
+};
+
+const bedroomById = new Map(BEDS.map(b => [b.id,b]));
+function bedInfo(id) { return bedroomById.get(id); }
+function bathApplies(bed, shift) {
+  if (!bed || bed.status !== 'occupied') return false;
+  if (bed.bath === 'yes') return true;
+  if (bed.bath === 'no') return false;
+  return (Number(bed.id.slice(0,3)) % 2 === 0) === (shift === 'day');
+}
+function canAttend(bed, staff) {
+  return !!(staff?.active &&
+    (!bed.bedridden || staff.canBedridden) &&
+    (!bed.enteral || staff.canEnteral) &&
+    canUseSlot(bed, staff) &&
+    (!(bed.sexRestriction === 'female' || (!bed.sexRestriction && bed.womenOnly)) || (staff.sex || (staff.woman ? 'female' : 'male')) === 'female') &&
+    (!(bed.sexRestriction === 'male') || (staff.sex || (staff.woman ? 'female' : 'male')) === 'male')); 
+}
+
+function buildDistances() {
+  const graph = new Map(ROOMS.map(r => [r, []]));
+  function link(a,b,w=1) { graph.get(a).push([b,w]); graph.get(b).push([a,w]); }
+  [POST_A.slice(0,8), POST_A.slice(8), POST_B.slice(0,4), POST_B.slice(4)]
+    .forEach(xs => { for (let i=0;i<xs.length-1;i++) link(xs[i],xs[i+1],1); });
+  // Agrupamentos informados pelo usuário. Pesos relativos, não metros.
+  [201,202,203,204,205].forEach((r,i)=>link(r, i<3 ? 224 : 223, 1.35));
+  [[206,224],[207,223],[208,222],[208,220],[208,221],
+   [209,218],[209,219],[210,216],[210,217],[212,214],[212,215]]
+    .forEach(([a,b])=>link(a,b,1.05));
+  // A região 217–223 é a faixa de transição; o custo é heurístico.
+  link(219,220,2.2); link(218,221,2.4); link(217,222,2.8);
+  const out = new Map();
+  for (const start of ROOMS) {
+    const dist = new Map(ROOMS.map(r=>[r,Infinity])); dist.set(start,0);
+    const seen = new Set();
+    for (let j=0;j<ROOMS.length;j++) {
+      let v=null, best=Infinity;
+      for (const r of ROOMS) if (!seen.has(r) && dist.get(r)<best) {best=dist.get(r);v=r;}
+      if (v===null) break;
+      seen.add(v);
+      for (const [next,w] of graph.get(v)) if (dist.get(next)>best+w) dist.set(next,best+w);
+    }
+    out.set(start,dist);
+  }
+  return out;
+}
+const DISTANCES = buildDistances();
+function dist(a,b) { return DISTANCES.get(a)?.get(b) ?? 12; }
+function affinity(room, staff, zone) {
+  const anchors = zone === 'S' ? [...TRANSITION_A,...TRANSITION_B] : (HOME_ROOMS[staff.slot] || []);
+  const choices = anchors.filter(r=>zone==='S' || (zone==='A' ? POST_A.includes(r) : POST_B.includes(r)));
+  const samePost = zone === 'A' ? POST_A : zone === 'B' ? POST_B : ROOMS;
+  const target = choices.length ? choices : samePost;
+  return Math.min(...target.map(r=>dist(room,r)));
+}
+function zoneCost(staff,zone) {
+  const slot=staff.slot;
+  const matrix={
+    1:{A:0,B:35,S:15},2:{A:0,B:35,S:15},3:{A:0,B:20,S:7},
+    4:{A:5,B:17,S:0},5:{A:35,B:0,S:15},6:{A:35,B:0,S:15},
+    7:{A:35,B:0,S:2},8:{A:30,B:0,S:10},9:{A:12,B:10,S:0}
+  };
+  return matrix[slot]?.[zone] ?? 10;
+}
+function combinations(arr,k) {
+  if(k===0)return [[]];
+  if(k>arr.length)return [];
+  const result=[];
+  function walk(start,chosen) {
+    if(chosen.length===k){result.push(chosen.slice());return;}
+    for(let i=start;i<=arr.length-(k-chosen.length);i++){chosen.push(arr[i]);walk(i+1,chosen);chosen.pop();}
+  }
+  walk(0,[]);return result;
+}
+function planZones(staff,beds,shift,preserve,bathCap=3) {
+  const n=staff.length;
+  const techCount = staff.filter(s=>s.role!=='nurse').length;
+  const odd = techCount % 2 === 1;
+  const a=beds.filter(b=>bedInfo(b.id).post==='A').length;
+  const b=beds.length-a;
+  const bathA=beds.filter(x=>bedInfo(x.id).post==='A'&&bathApplies(x,shift)).length;
+  const bathB=beds.filter(x=>bedInfo(x.id).post==='B'&&bathApplies(x,shift)).length;
+  const mustShare = odd && a > 0 && b > 0;
+  const minCross = mustShare ? 1 : 0;
+  const maxCross = mustShare ? Math.min(2,n) : 0; // Escala 4 e/ou 7, dois apenas quando um não comportar a ocupação
+  const proposals=[];
+  for(let sharedCount=minCross;sharedCount<=maxCross;sharedCount++) {
+    for(const shared of combinations(staff,sharedCount)) {
+      if(shared.some(s=>s.role==='nurse' || !SHARED_ALLOWED_SLOTS.has(s.slot))) continue; // quem divide só pode ser Escala 4 ou 7
+      const remaining=staff.filter(s=>!shared.includes(s));
+      for(let aN=0;aN<=remaining.length;aN++) {
+        const bN=remaining.length-aN;
+        if(a>7*(aN+sharedCount)-(b>0?sharedCount:0))continue;
+        if(b>7*(bN+sharedCount)-(a>0?sharedCount:0))continue;
+        if(bathA>bathCap*(aN+sharedCount)||bathB>bathCap*(bN+sharedCount))continue;
+        if(a<sharedCount || b<sharedCount)continue;
+        for(const aList of combinations(remaining,aN)) {
+          const aSet=new Set(aList.map(s=>s.slot));
+          const zones={};
+          staff.forEach(s=>zones[s.slot]=shared.includes(s)?'S':aSet.has(s.slot)?'A':'B');
+          if(staff.some(s=>!SHARED_ALLOWED_SLOTS.has(s.slot) && zones[s.slot]!==staffPost(s)))continue;
+          let rating=staff.reduce((sum,s)=>sum+zoneCost(s,zones[s.slot]),0);
+          rating+=sharedCount*(odd?8:12);
+          rating+=Math.abs(aN-(n-sharedCount)*(a/(a+b||1)))*7;
+          if (preserve?.assignment) {
+            for (const s of shared) {
+              const past=beds.filter(x=>preserve.assignment[x.id]===s.slot);
+              if(new Set(past.map(x=>bedInfo(x.id).post)).size===2)rating-=9;
+            }
+          }
+          proposals.push({zones,shared:shared.map(s=>s.slot),rating});
+        }
+      }
+    }
+  }
+  proposals.sort((x,y)=>x.rating-y.rating);
+  // Incluir alternativas de zonas para cobrir ausências e restrições individuais.
+  const selected=[];
+  const split = n<=5 ? [20,20,20] : (odd ? [20,40,30] : [45,0,0]);
+  for(let i=0;i<=2;i++)selected.push(...proposals.filter(p=>p.shared.length===i).slice(0,split[i]));
+  return selected;
+}
+
+class MinCostFlow {
+  constructor(n){this.n=n;this.g=Array.from({length:n},()=>[]);}
+  add(u,v,cap,cost){
+    const a={to:v,rev:this.g[v].length,cap,cost,initial:cap};
+    const b={to:u,rev:this.g[u].length,cap:0,cost:-cost,initial:0};
+    this.g[u].push(a);this.g[v].push(b);return a;
+  }
+  solve(source,sink,required) {
+    const pot=new Float64Array(this.n);
+    let sent=0,total=0;
+    while(sent<required) {
+      const d=Array(this.n).fill(Infinity),pu=Array(this.n).fill(-1),pe=Array(this.n).fill(-1);
+      const used=new Uint8Array(this.n);d[source]=0;
+      for(let step=0;step<this.n;step++) {
+        let v=-1,md=Infinity;
+        for(let i=0;i<this.n;i++)if(!used[i]&&d[i]<md){md=d[i];v=i;}
+        if(v===-1)break;
+        used[v]=1;
+        for(let j=0;j<this.g[v].length;j++){
+          const e=this.g[v][j];if(e.cap===0)continue;
+          const nd=d[v]+e.cost+pot[v]-pot[e.to];
+          if(nd<d[e.to]-1e-8){d[e.to]=nd;pu[e.to]=v;pe[e.to]=j;}
+        }
+      }
+      if(!Number.isFinite(d[sink]))break;
+      for(let i=0;i<this.n;i++)if(Number.isFinite(d[i]))pot[i]+=d[i];
+      let flow=required-sent;
+      for(let v=sink;v!==source;v=pu[v])flow=Math.min(flow,this.g[pu[v]][pe[v]].cap);
+      for(let v=sink;v!==source;v=pu[v]){
+        const e=this.g[pu[v]][pe[v]];e.cap-=flow;this.g[v][e.rev].cap+=flow;
+        total+=flow*e.cost;
+      }
+      sent+=flow;
+    }
+    return {sent,total};
+  }
+}
+function chooseAnchors(plan,staff,beds,shift,variant,preserve,bathCap) {
+  const assignments={};
+  const counts=new Map(staff.map(s=>[s.slot,{patients:0,baths:0}]));
+  const reserved=new Set();
+  for(const slot of plan.shared) {
+    const person=staff.find(s=>s.slot===slot);
+    for(const post of (variant===2 ? ['B','A']:['A','B'])) {
+      const transition = post==='A'?TRANSITION_A:TRANSITION_B;
+      const groups=[];
+      for(const room of (post==='A'?POST_A:POST_B)) {
+        const options=beds.filter(x=>Number(x.id.slice(0,3))===room&&!reserved.has(x.id)&&canAttend(x,person));
+        if(!options.length)continue;
+        const roomDistance=Math.min(...transition.map(r=>dist(room,r)));
+        const prevBonus=preserve?.assignment && options.some(x=>preserve.assignment[x.id]===slot)?-0.6:0;
+        groups.push({room,options,rank:roomDistance+prevBonus});
+      }
+      groups.sort((x,y)=>x.rank-y.rank || x.room-y.room);
+      // Diversificar os pontos de ancoragem sem perder a zona de transição.
+      const best=groups.filter(g=>g.rank<=Math.max(2.8,(groups[0]?.rank??0)+1.5));
+      const ordered=[...best.slice(variant%Math.max(best.length,1)),...best.slice(0,variant%Math.max(best.length,1)),...groups.filter(g=>!best.includes(g))];
+      let found=false;
+      for(const group of ordered) {
+        const count=counts.get(slot);
+        let choices=group.options;
+        if(plan.shared.length>1 || variant===1)choices=choices.slice(0,1);
+        let bath=choices.filter(x=>bathApplies(x,shift)).length;
+        if(count.patients+choices.length>7||count.baths+bath>bathCap){
+          choices=group.options.slice(0,1);bath=choices.filter(x=>bathApplies(x,shift)).length;
+        }
+        if(!choices.length||count.patients+choices.length>7||count.baths+bath>bathCap)continue;
+        for(const x of choices){assignments[x.id]=slot;reserved.add(x.id);}
+        count.patients+=choices.length;count.baths+=bath;
+        found=true;break;
+      }
+      if(!found)return null;
+    }
+  }
+  return {assignments,counts};
+}
+function solvePlan(plan,staff,beds,shift,variant,preserve,bathCap) {
+  const anchored=chooseAnchors(plan,staff,beds,shift,variant,preserve,bathCap);
+  if(!anchored)return null;
+  const left=beds.filter(x=>!anchored.assignments[x.id]);
+  const n=1+left.length+3*staff.length+1, source=0,sink=n-1;
+  const flow=new MinCostFlow(n);
+  const start=1+left.length;
+  const sMap=new Map(staff.map((s,i)=>[s.slot,{
+    bath:start+i*3,non:start+i*3+1,total:start+i*3+2
+  }]));
+  const links=[];
+  for(let i=0;i<left.length;i++){
+    const bed=left[i],info=bedInfo(bed.id),room=info.room;
+    flow.add(source,i+1,1,0);
+    for(const s of staff) {
+      const zone=plan.zones[s.slot];
+      if(zone!=='S'&&zone!==info.post)continue;
+      if(!canAttend(bed,s)||!postAllowed(bed,s))continue;
+      const slotNodes=sMap.get(s.slot);
+      const bnode=bathApplies(bed,shift)?slotNodes.bath:slotNodes.non;
+      let cost=Math.round(4.8*Math.min(affinity(room,s,zone),9));
+      if(zone==='S' && !(TRANSITION_A.includes(room)||TRANSITION_B.includes(room)))cost+=15;
+      if(preserve?.assignment)cost+=preserve.assignment[bed.id]===s.slot?0:38;
+      if(bed.isolation && bed.isolation!=='none')cost+=1;
+      // Desempate determinístico, sem dados pessoais.
+      cost+=((room*7+s.slot*13+variant*3)%5);
+      const edge=flow.add(i+1,bnode,1,cost);
+      links.push({bed:bed.id,slot:s.slot,edge});
+    }
+  }
+  for(const s of staff){
+    const nodes=sMap.get(s.slot),current=anchored.counts.get(s.slot);
+    const remain=7-current.patients;
+    if(remain<0||current.baths>bathCap)return null;
+    for(let j=current.baths;j<bathCap;j++)flow.add(nodes.bath,nodes.total,1,j<3?j*9:150);
+    flow.add(nodes.non,nodes.total,7,0);
+    for(let j=current.patients;j<7;j++)flow.add(nodes.total,sink,1,j*23);
+  }
+  const result=flow.solve(source,sink,left.length);
+  if(result.sent!==left.length)return null;
+  const assignment={...anchored.assignments};
+  for(const link of links)if(link.edge.initial===1&&link.edge.cap===0)assignment[link.bed]=link.slot;
+  return assignment;
+}
+
+function statistics(assignment,beds,staff,shift) {
+  const active=staff.filter(s=>s.active);
+  const rows=active.map(s=>({slot:s.slot,name:s.name||`Profissional ${s.slot}`,role:s.role,
+    patients:0,baths:0,bedridden:0,fugulinTotal:0,fugulinKnown:0,enteral:0,isolated:0,posts:{A:0,B:0},roomIds:new Set(),beds:[]}));
+  const bySlot=new Map(rows.map(r=>[r.slot,r]));
+  for(const b of beds.filter(x=>x.status==='occupied')) {
+    const row=bySlot.get(Number(assignment[b.id]));
+    if(!row)continue;
+    const info=bedInfo(b.id);
+    row.beds.push(b.id);row.patients++;
+    if(fugulinScore(b)!==null){row.fugulinTotal+=fugulinScore(b);row.fugulinKnown++;}row.posts[info.post]++;row.roomIds.add(info.room);
+    if(bathApplies(b,shift))row.baths++;
+    if(b.bedridden)row.bedridden++;
+    if(b.enteral)row.enteral++;
+    if(b.isolation && b.isolation!=='none')row.isolated++;
+  }
+  rows.forEach(r=>r.beds.sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})));
+  return rows;
+}
+function scoreAssignment(assignment,beds,staff,shift,preserve) {
+  const rows=statistics(assignment,beds,staff,shift);
+  if(!rows.length)return Infinity;
+  let score=0;
+  const counts=rows.map(r=>r.patients),max=Math.max(...counts),min=Math.min(...counts),mean=beds.length/rows.length;
+  score+=Math.max(0,max-min-1)*380;
+  score+=counts.reduce((t,x)=>t+(x-mean)**2,0)*24;
+  const baths=rows.map(x=>x.baths),bmean=baths.reduce((a,b)=>a+b,0)/rows.length;
+  score+=baths.reduce((sum,x)=>sum+(x-bmean)**2,0)*11;
+  const eligibleBed=rows.filter(r=>staff.find(s=>s.slot===r.slot)?.canBedridden);
+  if(eligibleBed.length){
+    const m=eligibleBed.reduce((a,r)=>a+r.bedridden,0)/eligibleBed.length;
+    score+=eligibleBed.reduce((a,r)=>a+(r.bedridden-m)**2,0)*18;
+  }
+  for(const r of rows){
+    const person=staff.find(s=>s.slot===r.slot);
+    if(r.patients>0 && r.bedridden===r.patients && r.patients>1)score+=240;
+    score+=Math.max(0,r.baths-3)*220;
+    if(r.slot===1 && r.patients===0)score+=12;
+    score+=r.roomIds.size*3;
+    const rooms=[...r.roomIds];
+    for(let i=0;i<rooms.length;i++){
+      const d=affinity(rooms[i],person,r.posts.A>0 &&r.posts.B>0?'S':r.posts.A>0?'A':'B');
+      score+=Math.min(d,7)*2.5;
+      for(let j=0;j<i;j++){
+        const apart=dist(rooms[i],rooms[j]);
+        score+=Math.max(0,apart-2)*3.1;
+      }
+    }
+    if(r.posts.A&&r.posts.B){
+      const disparity=Math.abs(r.posts.A-r.posts.B);
+      score+=32+disparity*10+Math.max(0,disparity-1)*115;
+      for(const id of r.beds){
+        const room=bedInfo(id).room;
+        if(!TRANSITION_A.includes(room)&&!TRANSITION_B.includes(room))score+=17;
+      }
+    }
+    if(person && !person.canBedridden && r.patients < mean)score+=(mean-r.patients)*4;
+  }
+  const rooms=new Map();
+  for(const b of beds) {
+    const room=bedInfo(b.id).room;
+    if(!rooms.has(room))rooms.set(room,new Set());
+    rooms.get(room).add(assignment[b.id]);
+  }
+  for(const owners of rooms.values())score+=(owners.size-1)*54;
+  if(preserve?.assignment) {
+    for(const b of beds)if(preserve.assignment[b.id]!==assignment[b.id])score+=preserve.weight??55;
+  }
+  const shared=rows.filter(r=>r.posts.A&&r.posts.B).length;
+  score+=Math.max(0,shared-1)*30;
+  const complexity=rows.map(r=>r.fugulinTotal/36);
+  const fm=complexity.reduce((a,b)=>a+b,0)/rows.length;
+  const variance=complexity.reduce((a,b)=>a+(b-fm)**2,0);
+  return score + 8 * variance/(1+variance);
+}
+function legalForZone(assignment,beds,staff,shift,zones,oddMandatory,bathCap){
+  const rows=statistics(assignment,beds,staff,shift);
+  if(rows.some(r=>r.patients>7||r.baths>bathCap))return false;
+  for(const bed of beds){
+    const s=staff.find(s=>s.slot===assignment[bed.id]);
+    if(!canAttend(bed,s)||!postAllowed(bed,s))return false;
+    if(zones[s.slot]!=='S'&&zones[s.slot]!==bedInfo(bed.id).post)return false;
+  }
+  const shared=rows.filter(r=>r.posts.A&&r.posts.B).length;
+  if(shared>2 || (!oddMandatory&&shared>0) || (oddMandatory&&shared<1))return false;
+  if(rows.some(r=>r.posts.A&&r.posts.B&&!SHARED_ALLOWED_SLOTS.has(r.slot)))return false;
+  if(rows.some(r=>r.posts.A&&r.posts.B&&Math.abs(r.posts.A-r.posts.B)>1))return false;
+  return true;
+}
+function localImprove(initial,beds,staff,shift,zones,preserve,bathCap) {
+  let best={...initial},bestScore=scoreAssignment(best,beds,staff,shift,preserve);
+  const techOdd=staff.filter(s=>s.role!=='nurse').length%2===1;
+  const bothPosts=new Set(beds.map(b=>bedInfo(b.id).post)).size===2;
+  const oddMandatory=techOdd&&bothPosts;
+  const ordered=beds.slice().sort((a,b)=>a.id.localeCompare(b.id));
+  // Permutas e realocações locais com verificação integral das restrições.
+  for(let round=0;round<3;round++){
+    let improvement=null,score=bestScore;
+    const rows=statistics(best,beds,staff,shift),bySlot=new Map(rows.map(x=>[x.slot,x]));
+    for(const bed of ordered){
+      const src=best[bed.id];
+      for(const s of staff){
+        if(s.slot===src || !canAttend(bed,s))continue;
+        if(zones[s.slot]!=='S'&&zones[s.slot]!==bedInfo(bed.id).post)continue;
+        const destination=bySlot.get(s.slot);
+        if(destination.patients>=7||destination.baths+(bathApplies(bed,shift)?1:0)>bathCap)continue;
+        const temp={...best,[bed.id]:s.slot};
+        if(!legalForZone(temp,beds,staff,shift,zones,oddMandatory,bathCap))continue;
+        const v=scoreAssignment(temp,beds,staff,shift,preserve);
+        if(v<score-0.001){score=v;improvement=temp;}
+      }
+    }
+    // Trocas de pacientes preservam a quantidade de cada profissional.
+    for(let i=0;i<ordered.length;i++)for(let j=i+1;j<ordered.length;j++){
+      const a=ordered[i],b=ordered[j],sa=best[a.id],sb=best[b.id];
+      if(sa===sb)continue;
+      const pa=staff.find(s=>s.slot===sa),pb=staff.find(s=>s.slot===sb);
+      if(!canAttend(a,pb)||!canAttend(b,pa))continue;
+      if(zones[sa]!=='S'&&zones[sa]!==bedInfo(b.id).post)continue;
+      if(zones[sb]!=='S'&&zones[sb]!==bedInfo(a.id).post)continue;
+      const shiftA=(bathApplies(b,shift)?1:0)-(bathApplies(a,shift)?1:0);
+      const shiftB=-shiftA;
+      if(bySlot.get(sa).baths+shiftA>bathCap||bySlot.get(sb).baths+shiftB>bathCap)continue;
+      const temp={...best,[a.id]:sb,[b.id]:sa};
+      if(!legalForZone(temp,beds,staff,shift,zones,oddMandatory,bathCap))continue;
+      const v=scoreAssignment(temp,beds,staff,shift,preserve);
+      if(v<score-0.001){score=v;improvement=temp;}
+    }
+    if(!improvement)break;
+    best=improvement;bestScore=score;
+  }
+  return {assignment:best,score:bestScore};
+}
+
+/**
+ * Não inventa alocações que violam limite de 7, banho<=3/4 ou restrições.
+ * Se não houver solução nas alternativas examinadas, retorna explicação e não publica escala.
+ */
+function generateSchedule(state,{preserve=false}={}) {
+  const beds=state.beds.filter(b=>b.status==='occupied');
+  const staff=state.staff.filter(s=>s.active);
+  const shift=state.shift;
+  const errors=[];
+  if(!staff.length)errors.push('Não há profissionais ativos para distribuir os pacientes.');
+  if(beds.length>staff.length*7)errors.push(`${beds.length} pacientes excedem a capacidade máxima de ${staff.length*7} com ${staff.length} profissionais.`);
+  const bathTotal=beds.filter(b=>bathApplies(b,shift)).length;
+  const cap=bathLimit(staff);
+  if(bathTotal>staff.length*cap)errors.push(`${bathTotal} banhos previstos excedem o limite total de ${staff.length*cap} (${staff.length} profissionais × ${cap}).`);
+  for(const b of beds)if(!staff.some(s=>canAttend(b,s)))errors.push(`Leito ${b.id}: nenhum profissional ativo atende a todas as restrições.`);
+  if(errors.length)return {ok:false,errors};
+  if(!beds.length)return {ok:true,assignment:{},score:0};
+  const previously=preserve?{assignment:{...state.assignment},weight:80}:null;
+  // Preferir rigidamente três banhos. Quarto banho é exceção se houver menos de 8 técnicos
+  // e se não for encontrada solução completa com limite de três.
+  for(const bathCap of (cap===4?[3,4]:[3])) {
+    const plans=planZones(staff,beds,shift,previously,bathCap);
+    let top=[];
+    // Com número ímpar, preferir estritamente só uma Escala compartilhando;
+    // recorrer a duas (4 e 7) apenas se nenhuma solução com uma for encontrada.
+    const sharedGroups = plans.some(p=>p.shared.length) ? [1,2] : [0];
+    for (const sharedCount of sharedGroups) {
+    for(const plan of plans.filter(p=>p.shared.length===sharedCount)){
+      for(let variant=0;variant<3;variant++){
+        const solution=solvePlan(plan,staff,beds,shift,variant,previously,bathCap);
+        if(!solution || validateSchedule(state,solution).errors.length)continue;
+        const score=scoreAssignment(solution,beds,staff,shift,previously);
+        top.push({assignment:solution,score:score+plan.rating*3,plan});
+        top.sort((a,b)=>a.score-b.score);
+        if(top.length>5)top.pop();
+      }
+    }
+    if(top.length) break;
+    }
+    if(!top.length)continue;
+    let chosen=top[0];
+    for(const option of top.slice(0,3)){
+      const updated=localImprove(option.assignment,beds,staff,shift,option.plan.zones,previously,bathCap);
+      const combined=updated.score+option.plan.rating*3;
+      if(combined<chosen.score)chosen={assignment:updated.assignment,score:combined,plan:option.plan};
+    }
+    return {ok:true,assignment:chosen.assignment,score:chosen.score,bathCap};
+  }
+  return {ok:false,errors:[
+    `Não foi possível distribuir todos os pacientes respeitando as restrições: Escala 1 com leitos habituais 201–205 e extras apenas 223/224; com número ímpar somente a Escala 4 e/ou a Escala 7 dividem os postos; com número par ninguém divide; limite de 7 pacientes e ${cap} banhos.`,
+    'A busca automática usa heurísticas; revise ocupação, restrições e cobertura antes de tentar novamente.'
+  ]};
+
+}
+function validateSchedule(state,assignment=state.assignment,{manual=false}={}) {
+  const errors=[],warnings=[];
+  const occupied=state.beds.filter(b=>b.status==='occupied');
+  const active=state.staff.filter(s=>s.active);
+  for(const b of occupied){
+    const slot=assignment[b.id],s=active.find(x=>x.slot===Number(slot));
+    if(!s){errors.push(`Leito ${b.id} não possui profissional ativo atribuído.`);continue;}
+    if(!postAllowed(b,s))errors.push(`Leito ${b.id}: Escala ${s.slot} pertence ao Posto ${staffPost(s)}. Somente Escalas 4 e 7 podem atender outro posto.`);
+    if(!canAttend(b,s))errors.push(`Leito ${b.id} atribuído à Escala ${s.slot}, que possui restrição incompatível (sexo, competências ou limite de leitos extras da Escala 1).`);
+  }
+  const rows=statistics(assignment,occupied,active,state.shift);
+  const cap=bathLimit(active);
+  rows.forEach(r=>{
+    if(r.patients>7)errors.push(`Escala ${r.slot} tem ${r.patients} pacientes (máximo: 7).`);
+    if(r.baths>cap)errors.push(`Escala ${r.slot} tem ${r.baths} banhos (máximo permitido: ${cap}).`);
+    if(r.baths>3)warnings.push(`Escala ${r.slot} tem ${r.baths} banhos: ${techCount(active)<8?'exceção à regra de 3 banhos (com menos de 8 técnicos).':'acima da regra de 3 banhos (com 8 ou mais técnicos).'}`);
+    if(r.patients>1&&r.bedridden===r.patients)warnings.push(`Escala ${r.slot} ficou exclusivamente com pacientes acamados.`);
+    if(r.posts.A&&r.posts.B&&Math.abs(r.posts.A-r.posts.B)>1)errors.push(`Escala ${r.slot} compartilha postos sem proporcionalidade: ${r.posts.A} pacientes no A e ${r.posts.B} no B (diferença máxima permitida: 1).`);
+  });
+  const shared=rows.filter(r=>r.posts.A&&r.posts.B);
+  if(shared.length>2)errors.push(`${shared.length} profissionais dividem os postos (máximo automático: 2).`);
+  if(shared.some(r=>!SHARED_ALLOWED_SLOTS.has(r.slot)))errors.push('Na geração automática, somente a Escala 4 ou a Escala 7 pode dividir os Postos A e B.');
+  if(shared.some(r=>r.role==='nurse'))errors.push('A divisão de postos deve ser realizada por técnico, não pelo enfermeiro de cobertura.');
+  const tech=active.filter(s=>s.role!=='nurse').length;
+  const across=new Set(occupied.map(b=>bedInfo(b.id).post)).size===2;
+  if(tech%2===0&&shared.length)errors.push('Com número par de técnicos, é proibido compartilhar os Postos A e B.');
+  if(tech%2===1&&across&&!shared.some(r=>state.staff.find(s=>s.slot===r.slot)?.role!=='nurse'))errors.push('Com número ímpar de técnicos, pelo menos um técnico deve dividir os Postos A e B.');
+  if(tech<7){
+    const substitutes=active.filter(s=>s.role==='nurse'||s.role==='support').length;
+    if(active.length<7)warnings.push(`Equipe abaixo do mínimo habitual: ${tech} técnicos/apoios ativos e ${active.length} profissionais no total. Acionar enfermeiro de cobertura ou técnico de apoio.`);
+    else if(substitutes)warnings.push('Cobertura excepcional com profissional de apoio ou enfermeiro; confirmar designação e responsabilidades.');
+  }
+  if(rows.length){
+    const mx=Math.max(...rows.map(x=>x.patients)),mn=Math.min(...rows.map(x=>x.patients));
+    if(mx-mn>1)warnings.push(`Diferença de ${mx-mn} pacientes entre profissionais (${mn} a ${mx}). Rever proporcionalidade.`);
+  }
+  for(const bed of state.beds.filter(x=>x.status!=='occupied')){
+    if(assignment[bed.id])warnings.push(`Leito ${bed.id} não está ocupado, mas consta na escala: atualizar a distribuição.`);
+  }
+  // A edição manual é deliberadamente livre, inclusive para ultrapassar metas,
+  // dividir postos ou atribuir outro território. Não oculta os riscos: converte
+  // conflitos em alertas e exige conferência do responsável pelo plantão.
+  if(manual) return {errors:[],warnings:[...errors.map(x=>`Exceção manual — ${x}`),...warnings],stats:rows,overrides:errors};
+  return {errors,warnings,stats:rows,overrides:[]};
+}
+
+const STORAGE='escala-enfermagem-diaria-v1';
+const OPTIONS={
+  occupied:'Ocupado',vacant:'Vago',blocked:'Bloqueado',
+  'isolation-blocked':'Bloq. por isolamento'
+};
+const ISOLATIONS={none:'Sem isolamento',contact:'Contato',droplet:'Gotículas',airborne:'Aerossóis'};
+const ROLES={tech:'Técnico(a)',support:'Técnico(a) de apoio',nurse:'Enfermeiro(a) de cobertura'};
+const VIEWS={schedule:['▦','Escala do plantão'],edit:['✎','Revisar para impressão'],beds:['▤','Mapa de leitos'],staff:['♧','Equipe'],history:['◷','Histórico'],rules:['⚙','Regras e dados']};
+const $=s=>document.querySelector(s);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+function today(){const t=new Date();return `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`;}
+function dateBR(s){if(!s)return '—';const p=s.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:s;}
+function clone(x){return JSON.parse(JSON.stringify(x));}
+function statusLabel(s){return OPTIONS[s]||'Desconhecido';}
+function safeLocalStore(){try{localStorage.setItem(STORAGE,JSON.stringify(state));}catch(e){ui.storageProblem=true;}}
+function defaultStaff(){return Array.from({length:9},(_,i)=>({
+  post:[1,2,3,4,9].includes(i+1)?'A':'B',slot:i+1,name:`Profissional ${i+1}`,active:i<7,role:'tech',
+  woman:[2,5,6].includes(i+1),sex:[2,5,6].includes(i+1)?'female':'male',canBedridden:i+1!==3,canEnteral:i+1!==3
+}));}
+function defaultBeds(demo=true){
+  const vacant=new Set(['201B','204B','208B','210B','212A','214B','217B','220B','224A']);
+  const blocked=new Set(['205B','216A']);
+  const isolationBlocked=new Set(['218B','223B']);
+  const bedridden=new Set(['202A','207B','209A','211B','215B','219A','221B','224B']);
+  const enteral=new Set(['206B','209B','220A']);
+  const womenOnly=new Set(['202B']);
+  const iso=new Set(['211A','221A']);
+  return BEDS.map(x=>({id:x.id,sexRestriction:demo&&womenOnly.has(x.id)?'female':'any',status:!demo?'vacant':vacant.has(x.id)?'vacant':blocked.has(x.id)?'blocked':isolationBlocked.has(x.id)?'isolation-blocked':'occupied',
+    bedridden:demo&&bedridden.has(x.id),enteral:demo&&enteral.has(x.id),womenOnly:demo&&womenOnly.has(x.id),
+    isolation:demo&&iso.has(x.id)?'contact':'none',bath:'auto',fugulin:null}));
+}
+function defaultState(demo=true){return {
+  version:1,manualOverride:false,printTitle:'Escala diária de enfermagem',printNotes:'',includeVacancies:true,date:today(),shift:'day',staff:defaultStaff(),beds:defaultBeds(demo),
+  assignment:{},history:[],stale:true,generatedAt:null,demo,responsible:'',lastError:[]
+};}
+function loadState(){
+  try {
+    const raw=JSON.parse(localStorage.getItem(STORAGE));
+    if(!raw||raw.version!==1||!Array.isArray(raw.beds)||!Array.isArray(raw.staff))return defaultState();
+    const d=defaultState();const savedBeds=new Map(raw.beds.map(x=>[x.id,x]));
+    const savedStaff=new Map(raw.staff.map(x=>[Number(x.slot),x]));
+    return {...d,...raw,
+      beds:d.beds.map(b=>{const old=savedBeds.get(b.id)||{};return {...b,...old,sexRestriction:old.sexRestriction || (old.womenOnly?'female':'any')};}),
+      staff:d.staff.map(s=>{const old=savedStaff.get(s.slot)||{};return {...s,...old,sex:old.sex || (old.woman?'female':'male'),slot:s.slot};}),
+      history:Array.isArray(raw.history)?raw.history.slice(0,20):[],
+      assignment:raw.assignment&&typeof raw.assignment==='object'?raw.assignment:{},
+      lastError:Array.isArray(raw.lastError)?raw.lastError:[]
+    };
+  }catch(e){return defaultState();}
+}
+let state=loadState();
+const ui={view:'schedule',modal:null,filter:'',bedFilter:'all',toast:null,storageProblem:false,draftAssignment:null,draftDirty:false,selectedBed:null,selectedBeds:new Set(),openBeds:new Set()};
+function record(action,reason=''){
+  state.history.unshift({id:Date.now()+Math.random(),when:new Date().toISOString(),action,reason,
+    state:{date:state.date,shift:state.shift,staff:clone(state.staff),beds:clone(state.beds),
+      assignment:clone(state.assignment),generatedAt:state.generatedAt,stale:state.stale,manualOverride:state.manualOverride,responsible:state.responsible,printTitle:state.printTitle,printNotes:state.printNotes,includeVacancies:state.includeVacancies}});
+  state.history=state.history.slice(0,20);
+}
+function commit(){safeLocalStore();render();}
+function toast(message,error=false){ui.toast={message,error};render();clearTimeout(toast.timer);toast.timer=setTimeout(()=>{ui.toast=null;render();},4300);}
+function occupied(){return state.beds.filter(b=>b.status==='occupied');}
+function getStats(assignment=state.assignment){return statistics(assignment,state.beds,state.staff,state.shift);}
+function totals(){const all=state.beds,active=state.staff.filter(s=>s.active);
+  return {occupied:occupied().length,vacant:all.filter(b=>b.status==='vacant').length,
+    blocked:all.filter(b=>b.status==='blocked').length,
+    isolationBlocked:all.filter(b=>b.status==='isolation-blocked').length,
+    baths:occupied().filter(b=>bathApplies(b,state.shift)).length,
+    workers:active.length,
+    unassigned:occupied().filter(b=>!active.some(s=>s.slot===Number(state.assignment[b.id]))).length};
+}
+function shiftLabel(){return state.shift==='day'?'Diurno · quartos pares':'Noturno · quartos ímpares';}
+function statusText(){
+  if(state.stale)return ['pill-amber','Escala precisa ser recalculada'];
+  const v=validateSchedule(state,state.assignment,{manual:!!state.manualOverride});
+  if(v.errors.length)return ['pill-red','Distribuição pendente'];
+  if(state.manualOverride)return ['pill-amber','Personalização manual — conferir'];
+  if(v.warnings.length)return ['pill-amber','Revisão recomendada'];
+  return ['pill-green','Distribuição sem alertas'];
+}
+function header(){const [cls,status]=statusText();return `
+  <div class="topline"><span class="crumb">Operação assistencial &nbsp;/&nbsp; <strong>Distribuição diária</strong></span>
+    <span class="demo-flag">${state.demo?'● DADOS FICTÍCIOS / DEMONSTRAÇÃO':'● PROTÓTIPO LOCAL'}</span></div>
+  <div class="page-header">
+    <div><p class="eyebrow">Gestão do plantão</p><h1>Escala de enfermagem</h1>
+      <p class="subtitle">Distribuição territorial e proporcional dos pacientes, com checagem de banhos, restrições individuais e postos compartilhados.</p></div>
+    <div class="toolbar-actions no-print">
+      <button class="btn" data-action="remove-modal">↺&nbsp; Remanejamento</button>
+      <button class="btn" data-action="preserve">⟳&nbsp; Redistribuir</button>
+      <button class="btn btn-primary" data-action="generate">✦&nbsp; Gerar escala</button>
+    </div>
+  </div>
+  <div class="print-only"><div class="print-meta"><strong>${esc(state.printTitle||'Escala diária de enfermagem')}</strong> · Plantão: ${esc(dateBR(state.date))} · ${esc(shiftLabel())} · Enfermeiro(a): ${esc(state.responsible||'Não informado')} · Status: ${esc(statusText()[1])} · ${state.demo?'CENÁRIO FICTÍCIO · ':''}Emitido em ${esc(new Date().toLocaleString('pt-BR'))}</div></div>
+  <div class="control-bar no-print"><div class="controls-left">
+    <label class="label-field">Data do plantão <input class="control" type="date" data-global="date" value="${esc(state.date)}" /></label>
+    <label class="label-field">Turno <select class="control" data-global="shift">
+       <option value="day" ${state.shift==='day'?'selected':''}>☀ Diurno</option>
+       <option value="night" ${state.shift==='night'?'selected':''}>☾ Noturno</option></select></label>
+    <label class="label-field">Enfermeiro(a) responsável <input class="control" type="text" data-global="responsible" maxlength="90" value="${esc(state.responsible)}" placeholder="Nome para impressão" /></label>
+  </div><div class="row-actions"><span class="pill ${cls}">${esc(status)}</span>
+    <button class="btn btn-sm" data-action="print">✎ Revisar / imprimir</button>
+    <button class="btn btn-sm" data-action="csv">↓ CSV</button></div></div>`;}
+function metrics(){const t=totals(),values=[
+  ['▣','Pacientes ocupando leitos',t.occupied,'de 46 leitos físicos'],
+  ['◻','Leitos vagos',t.vacant,'sem paciente'],
+  ['▥','Leitos bloqueados',t.blocked+t.isolationBlocked,`${t.isolationBlocked} por isolamento`],
+  ['♧','Equipe ativa',t.workers,'de até 9 escalas'],
+  ['◉','Banhos previstos',t.baths,shiftLabel()]
+];return `<section class="metrics no-print">${values.map(([icon,label,num,foot])=>`
+  <div class="metric"><div class="metric-head"><span>${esc(label)}</span><span class="metric-icon">${icon}</span></div>
+    <div class="metric-value">${num}</div><div class="metric-foot">${esc(foot)}</div></div>`).join('')}</section>`;}
+function alerts(){const items=[];
+  if(state.stale){items.push({kind:'warning',title:'Distribuição ainda não atualizada.',text:'Após alterar os leitos, a equipe, a data ou o turno, clique em “Gerar escala” ou “Redistribuir”. Os valores apresentados podem ser de uma versão anterior.'});}
+  if(state.lastError?.length)items.push({kind:'error',title:'Não foi possível gerar uma escala completa.',bullets:state.lastError});
+  if(state.generatedAt&&!state.stale){const v=validateSchedule(state,state.assignment,{manual:!!state.manualOverride});
+    if(v.errors.length)items.push({kind:'error',title:'Pendências que impedem uma distribuição válida.',bullets:v.errors.slice(0,10)});
+    if(v.warnings.length)items.push({kind:'warning',title:'Alertas para revisão do enfermeiro.',bullets:v.warnings.slice(0,10)});
+  }
+  if(ui.storageProblem)items.push({kind:'warning',title:'Não foi possível salvar neste navegador.',text:'Exporte um arquivo JSON para não perder os dados.'});
+  return items.map(x=>`<div class="notice ${x.kind}"><span>ⓘ</span><div><strong>${esc(x.title)}</strong>${x.text?`<div>${esc(x.text)}</div>`:''}
+    ${x.bullets?`<ul>${x.bullets.map(b=>`<li>${esc(b)}</li>`).join('')}</ul>`:''}</div></div>`).join('');
+}
+function bedTags(ids){return ids.length?ids.map(id=>{
+  const b=state.beds.find(x=>x.id===id);
+  const flags=[b?.bedridden?'Acamado':null,b?.enteral?'SNE/SNG':null,b?.sexRestriction==='female'?'Somente profissional mulher':b?.sexRestriction==='male'?'Somente profissional homem':null,b?.isolation!=='none'?'Em isolamento':null].filter(Boolean);
+  return `<button class="bed-tag ${b?.isolation!=='none'?'bed-iso':''} no-print-action" draggable="true" data-action="select-bed" aria-pressed="${ui.selectedBed===id}" data-id="${esc(id)}" title="${esc(flags.join(' · ')||'Clique para trocar o responsável')}">${esc(id)}${b?.isolation!=='none'?' ◈':''}</button>`;
+}).join(''):'<span class="text-muted">—</span>';}
+function schedulePanel(assignment=state.assignment){const rows=getStats(assignment),t=totals();const occupiedById=occupied();const assignedIds=new Set(Object.keys(assignment).filter(id=>state.staff.some(s=>s.active&&s.slot===Number(assignment[id]))));
+  const missing=occupiedById.filter(b=>!assignedIds.has(b.id)).map(b=>b.id);
+  const body=rows.map(r=>{
+    const a=r.beds.filter(id=>bedInfo(id).post==='A');const b=r.beds.filter(id=>bedInfo(id).post==='B');
+    return `<tr data-drop-slot="${r.slot}" class="drop-row"><td><button class="person-title destination" data-action="move-selected" data-slot="${r.slot}">Escala ${r.slot} · Posto ${staffPost(state.staff.find(s=>s.slot===r.slot))}</button><span class="person-meta">${esc(r.name)}</span>
+    ${r.role!=='tech'?`<span class="pill pill-amber">${esc(ROLES[r.role])}</span>`:''}</td>
+    <td><div class="assignments">${bedTags(a)}</div></td><td><div class="assignments">${bedTags(b)}</div></td>
+    <td><span class="num">${r.patients}</span> ${r.posts.A>0&&r.posts.B>0?'<span class="pill pill-teal">Compartilhado</span>':''}</td>
+    <td><span class="num">${r.baths}</span>${r.baths>3?' <span class="pill pill-amber">exceção</span>':r.baths===3?' <span class="pill">padrão</span>':''}</td>
+    <td><span class="num">${r.bedridden}</span></td></tr>`;
+  }).join('');
+  return `<section class="panel print-panel" id="schedule-panel">
+    <div class="panel-header"><div><h2>Distribuição por profissional</h2>
+      <p class="panel-subtitle">Arraste um leito até o técnico desejado, ou clique no leito e depois no nome da escala. Edição livre, salva automaticamente.</p></div>
+      <span class="pill ${missing.length?'pill-amber':'pill-teal'}">${missing.length?`${missing.length} sem responsável`:`${t.occupied} pacientes contabilizados`}</span></div>
+    ${rows.length?`<div class="table-wrap"><table aria-label="Distribuição dos pacientes"><thead><tr>
+      <th>Escala / Profissional</th><th>Posto A</th><th>Posto B</th><th>Pacientes</th><th>Banhos</th><th>Acamados</th>
+    </tr></thead><tbody>${body}</tbody></table></div>`:`<div class="empty"><strong>Nenhum profissional ativo</strong>Ative a equipe antes de distribuir pacientes.</div>`}
+    ${missing.length?`<div class="panel-body"><div class="pending-assignment"><span>!</span><div><strong>Leitos ocupados sem responsável</strong>
+      <div>${bedTags(missing)}</div></div></div></div>`:''}
+    <div class="panel-body no-print"><div class="split-sum"><span class="section-kicker">Legenda</span>
+      <span class="bed-tag">202A</span><span class="text-muted">Leito ocupado</span>
+      <span class="bed-tag bed-iso">211A ◈</span><span class="text-muted">Paciente em isolamento (revisar precauções)</span>
+      <span class="pill pill-teal">Compartilhado</span><span class="text-muted">Atende ambos os postos</span></div></div>
+  </section>`;}
+function reportPanel(){
+  const postItems=post=>{
+    const list=state.beds.filter(b=>bedInfo(b.id).post===post);
+    const lines=[['vacant','Leitos vagos',list.filter(b=>b.status==='vacant')],
+      ['blocked','Leitos bloqueados',list.filter(b=>b.status==='blocked')],
+      ['isolation','Bloqueados por isolamento',list.filter(b=>b.status==='isolation-blocked')]];
+    return `<div class="report-col"><h3>Posto ${post} <span class="pill">${post==='A'?26:20} leitos físicos</span></h3>
+      ${lines.map(([cls,title,values])=>`<div class="report-line ${cls}"><strong>${esc(title)} (${values.length})</strong>
+      <div class="ids">${values.length?esc(values.map(v=>v.id).join(' · ')):'Nenhum'}</div></div>`).join('')}</div>`;
+  };
+  return `<section class="panel print-panel" id="report-panel"><div class="panel-header"><div><h2>Relação de leitos indisponíveis e vagos</h2>
+    <p class="panel-subtitle">Listagem escrita por posto. Leitos vagos, bloqueados e bloqueados por isolamento não entram na escala.</p></div>
+    <span class="pill pill-teal">Atualização automática</span></div>
+    <div class="panel-body"><div class="report-grid">${postItems('A')}${postItems('B')}</div></div></section>`;
+}
+function scheduleView(){return `${metrics()}${alerts()}<div class="row-actions no-print review-cta"><button class="btn btn-primary" data-action="edit-open">✎ Personalizar escala antes de imprimir</button></div>${schedulePanel()}`;}
+function editorView(){
+  const check=validateSchedule(state,state.assignment,{manual:true});
+  return `<div class="no-print review-actions"><button class="btn btn-primary" data-action="finalize-print">⎙ Imprimir / salvar em PDF</button><span class="form-note">Movimentos salvos automaticamente. ${ui.selectedBed?`Leito ${esc(ui.selectedBed)} selecionado — clique na escala de destino.`:'Arraste os leitos ou use dois cliques.'}</span></div>
+    ${schedulePanel()}
+    <details class="panel no-print"><summary>Alertas para conferir (${check.warnings.length})</summary><div class="panel-body">${check.warnings.length?check.warnings.map(x=>`<p>${esc(x)}</p>`).join(''):'Sem alertas.'}</div></details>
+    <details class="panel no-print"><summary>Título e observações da impressão</summary><div class="panel-body print-editor-fields">
+    <label class="label-field">Título<input class="text-input" data-global="printTitle" value="${esc(state.printTitle)}" maxlength="100"></label>
+    <label class="label-field">Observações<textarea class="text-input" data-global="printNotes" maxlength="650">${esc(state.printNotes)}</textarea></label>
+    <label><input type="checkbox" data-global="includeVacancies" ${state.includeVacancies?'checked':''}> Incluir vagos e bloqueados</label></div></details>`;
+}
+function fugulinPanel(){
+  return `<section class="panel print-panel"><div class="panel-header"><h2>Pacientes por classificação de Fugulin</h2></div><div class="panel-body">${FUGULIN_CATEGORIES.map(c=>{const beds=occupied().filter(b=>fugulinCategory(b)===c);return `<p><strong>${c} (${beds.length}):</strong> ${beds.map(b=>b.id).join(', ')||'Nenhum'}</p>`;}).join('')}</div></section>`;
+}
+
+function roomCards(post){
+  const rooms=(post==='A'?POST_A:POST_B);
+  const filter=ui.filter.trim().toLowerCase();
+  return rooms.filter(room=>{
+    const list=state.beds.filter(x=>Number(x.id.slice(0,3))===room);
+    if(filter&&!list.some(x=>x.id.toLowerCase().includes(filter)))return false;
+    if(ui.bedFilter==='all')return true;
+    return list.some(b=>b.status===ui.bedFilter);
+  }).map(room=>{
+    const two=state.beds.filter(x=>Number(x.id.slice(0,3))===room);
+    const occupiedCount=two.filter(b=>b.status==='occupied').length;
+    const inner=two.map(b=>{
+      const active=b.status==='occupied';
+      return `<div class="bed-editor ${active?'':b.status==='isolation-blocked'?'isolated-locked':'hollow'}">
+        <div class="bed-editor-top"><strong>${esc(b.id)}</strong>
+          <label class="batch-check"><input type="checkbox" data-select-bed="${b.id}" ${ui.selectedBeds.has(b.id)?'checked':''} aria-label="Selecionar ${b.id}"> Selecionar</label></div>
+          <div class="status-buttons">${Object.entries(OPTIONS).map(([key,label])=>`<button class="status-choice ${b.status===key?'chosen':''}" data-action="bed-status" data-id="${b.id}" data-status="${key}" aria-pressed="${b.status===key}">${label}</button>`).join('')}</div>
+        ${active?`<div class="bed-details">
+          <div class="flag-grid">
+            <label class="label-field">Fugulin (9–36)<input type="number" class="mini-select" min="9" max="36" step="1" data-bed="${b.id}" data-bed-field="fugulin" value="${fugulinScore(b)??''}" placeholder="Não informado"><small>${fugulinCategory(b)}</small></label>
+            <label class="checkline"><input type="checkbox" data-bed="${esc(b.id)}" data-bed-field="bedridden" ${b.bedridden?'checked':''}> Acamado</label>
+            <label class="checkline"><input type="checkbox" data-bed="${esc(b.id)}" data-bed-field="enteral" ${b.enteral?'checked':''}> Sonda enteral</label>
+          </div><details class="bed-extra" data-detail-bed="${b.id}" ${ui.openBeds.has(b.id)?'open':''}><summary>Mais opções${b.sexRestriction!=='any'?' · Restrição por sexo':''}${b.isolation!=='none'?' · '+ISOLATIONS[b.isolation]:''}${b.bath!=='auto'?' · Banho manual':''}</summary><div class="flag-grid">
+            <label class="label-field" style="grid-column:1 / -1">Restrição por sexo do profissional<select class="mini-select" data-bed="${esc(b.id)}" data-bed-field="sexRestriction"><option value="any" ${b.sexRestriction==='any'?'selected':''}>Sem restrição</option><option value="female" ${b.sexRestriction==='female'?'selected':''}>Somente mulher</option><option value="male" ${b.sexRestriction==='male'?'selected':''}>Somente homem</option></select></label>
+          </div>
+          <div class="inline-fields"><label class="label-field">Banho neste turno
+            <select class="mini-select" data-bed="${esc(b.id)}" data-bed-field="bath">
+              <option value="auto" ${b.bath==='auto'?'selected':''}>Automático (${bathApplies(b,state.shift)?'sim':'não'})</option>
+              <option value="yes" ${b.bath==='yes'?'selected':''}>Sim — exceção</option>
+              <option value="no" ${b.bath==='no'?'selected':''}>Não — exceção</option>
+            </select></label>
+            <label class="label-field">Precaução adicional
+            <select class="mini-select" data-bed="${esc(b.id)}" data-bed-field="isolation">
+              ${Object.entries(ISOLATIONS).map(([key,label])=>`<option value="${key}" ${b.isolation===key?'selected':''}>${esc(label)}</option>`).join('')}
+            </select></label></div></details>
+        </div>`:`<div class="form-note">${b.status==='vacant'?'Sem paciente — não contabilizado':b.status==='blocked'?'Leito indisponível para admissão':'Leito bloqueado por necessidade de isolamento — não distribuir'}</div>`}
+      </div>`;
+    }).join('');
+    return `<article class="room-card"><div class="room-heading"><h4>Quarto ${room}</h4><small>${occupiedCount} / 2 ocupado(s)</small></div>${inner}</article>`;
+  }).join('');
+}
+function bedsView(){return `${metrics()}<div class="notice"><span>ⓘ</span><div><strong>Diferença importante:</strong> “Bloqueado por isolamento” significa que aquele leito não pode receber paciente e não é distribuído. Para um paciente internado sob precaução, mantenha o leito como <strong>ocupado</strong> e selecione a precaução adicional. Os banhos padrão são previstos pelos quartos pares no diurno e ímpares no noturno.</div></div>
+  <div class="batch-toolbar no-print"><strong>${ui.selectedBeds.size} selecionados</strong>
+  ${['A','B','all'].map(p=>`<button class="btn btn-sm" data-action="select-post" data-post="${p}">${p==='all'?'Selecionar todos':'Selecionar Posto '+p}</button>`).join('')}
+  <button class="btn btn-sm" data-action="clear-selection">Limpar seleção</button>
+  <div class="row-actions">${Object.entries(OPTIONS).map(([key,label])=>`<button class="btn btn-sm" data-action="bulk-status" data-status="${key}" ${ui.selectedBeds.size?'':'disabled'}>${label}</button>`).join('')}
+  <button class="btn btn-sm" data-action="bulk-flag" data-field="bedridden" data-value="true">Acamados</button><button class="btn btn-sm" data-action="bulk-flag" data-field="bedridden" data-value="false">Não acamados</button></div></div>
+  <div class="beds-toolbar no-print"><input id="bed-search" class="text-input" type="search" placeholder="Filtrar leito, ex.: 220A" value="${esc(ui.filter)}" />
+    <select id="bed-status-filter" class="control"><option value="all" ${ui.bedFilter==='all'?'selected':''}>Todos os status</option>
+    ${Object.entries(OPTIONS).map(([key,value])=>`<option value="${key}" ${ui.bedFilter===key?'selected':''}>${esc(value)}</option>`).join('')}</select>
+    <button class="btn btn-sm" data-action="clear-filter">Limpar filtro</button></div>
+  ${[['A',26],['B',20]].map(([post,count])=>`<section class="panel"><div class="panel-header"><div><h2>Posto ${post} — ${count} leitos</h2>
+    <p class="panel-subtitle">${post==='A'?'Quartos 201–208 e 220–224':'Quartos 209–212 e 214–219 (quarto 213 excluído)'}</p></div>
+    <span class="pill">${state.beds.filter(b=>bedInfo(b.id).post===post&&b.status==='occupied').length} pacientes</span></div>
+    <div class="panel-body"><div class="room-grid">${roomCards(post)||'<div class="empty">Nenhum quarto atende ao filtro.</div>'}</div></div></section>`).join('')}`;}
+function staffView(){const items=state.staff.map(s=>`<div class="staff-card ${s.active?'':'inactive'}">
+    <div class="staff-number"><small>Escala</small>${s.slot}</div>
+    <div class="staff-controls">
+      <label class="label-field">Identificação do profissional <input class="text-input" data-staff="${s.slot}" data-staff-field="name" type="text" maxlength="85" value="${esc(s.name)}" /></label>
+      <label class="label-field">Posto de referência<select class="mini-select" data-staff="${s.slot}" data-staff-field="post"><option value="A" ${staffPost(s)==='A'?'selected':''}>Posto A</option><option value="B" ${staffPost(s)==='B'?'selected':''}>Posto B</option></select></label>
+      <span class="form-note">Área usual: ${esc(HOME_ROOMS[s.slot].join(' · '))}</span>
+    </div>
+    <label class="label-field">Categoria / cobertura
+      <select class="mini-select" data-staff="${s.slot}" data-staff-field="role">
+      ${Object.entries(ROLES).map(([value,label])=>`<option value="${value}" ${s.role===value?'selected':''}>${esc(label)}</option>`).join('')}
+      </select></label>
+    <div class="staff-rules">
+      <label class="label-field">Sexo do profissional<select class="mini-select" data-staff="${s.slot}" data-staff-field="sex"><option value="female" ${s.sex==='female'?'selected':''}>Mulher</option><option value="male" ${s.sex==='male'?'selected':''}>Homem</option></select></label>
+      <label class="checkline"><input type="checkbox" data-staff="${s.slot}" data-staff-field="canEnteral" ${s.canEnteral?'checked':''}> Pode assumir sonda enteral</label>
+      <label class="checkline"><input type="checkbox" data-staff="${s.slot}" data-staff-field="canBedridden" ${s.canBedridden?'checked':''}> Pode assumir pacientes acamados</label>
+      <label class="status-toggle"><input type="checkbox" data-staff="${s.slot}" data-staff-field="active" ${s.active?'checked':''}> Presente no plantão</label>
+    </div>
+    <div class="staff-actions">${s.active?`<button class="btn btn-sm btn-danger" data-action="remove-modal" data-slot="${s.slot}">↪ Retirar</button>`:`<span class="pill">Ausente</span>`}</div>
+  </div>`).join('');
+  return `${metrics()}<div class="notice"><span>ⓘ</span><div>Ative somente os profissionais presentes. Os campos de restrição representam a elegibilidade definida e verificada pela instituição. Se um técnico não puder assumir pacientes acamados ou com sonda enteral, desmarque a competência correspondente. O limite é de até 9 posições de escala nesta versão.</div></div>
+    <section class="panel"><div class="panel-header"><div><h2>Cadastro e presença dos profissionais</h2>
+      <p class="panel-subtitle">Os profissionais têm restrições independentes; selecione o enfermeiro de cobertura ou técnico de apoio quando necessário.</p></div>
+      <button class="btn btn-sm" data-action="remove-modal">Registrar intercorrência</button></div><div class="panel-body"><div class="staff-list">${items}</div></div></section>`;}
+function historyView(){return `<section class="panel"><div class="panel-header"><div><h2>Histórico de versões</h2><p class="panel-subtitle">Snapshots locais antes de gerar, revisar ou alterar a distribuição. Até 20 versões.</p></div>
+    <button class="btn btn-sm" data-action="json">↓ Exportar dados JSON</button></div><div class="panel-body">
+    ${state.history.length?`<div class="timeline">${state.history.map((h,i)=>`<div class="timeline-item"><div>
+      <strong>${esc(h.action)}</strong><span>${esc(new Date(h.when).toLocaleString('pt-BR'))} · ${esc(dateBR(h.state.date))} · ${h.state.shift==='day'?'Diurno':'Noturno'}
+      ${h.reason?` · ${esc(h.reason)}`:''}</span></div>
+      <button class="btn btn-sm" data-action="restore" data-index="${i}">Restaurar</button></div>`).join('')}</div>`:'<div class="empty"><strong>Sem versões anteriores</strong>As revisões e remanejamentos ficarão registrados aqui, neste navegador.</div>'}
+    </div></section>`;}
+function rulesView(){const rules=[
+  ['Território e aproximação','O posto cadastrado na aba Equipe é obrigatório na geração automática; apenas Escalas 4 e 7 podem atender ambos. Posto A: 201–208, 220–224. Posto B: 209–212, 214–219. Quarto 213 não integra a escala. O mapa de proximidade é heurístico, conforme as orientações fornecidas.'],
+  ['Máximo por profissional','Na geração automática, até 7 pacientes. Banho: até 3 por padrão; com menos de 8 técnicos, permitir 4 quando 3 não forem suficientes. Manualmente, esses limites geram alertas, mas não bloqueiam.'],
+  ['Escala 1 — rotina e pacientes extras','Na geração automática, recebe normalmente os leitos habituais dos quartos 201–205; caso precise de leitos extras, somente 223A/B ou 224A/B. Na personalização manual, pode receber qualquer leito, com alerta de exceção.'],
+  ['Banhos por turno','Diurno: quartos de numeração par. Noturno: quartos de numeração ímpar. Exceções podem ser registradas por leito.'],
+  ['Acamados e complexidade','Evitar concentração de acamados e distribuição exclusivamente de pacientes acamados. Fugulin é um critério complementar, de menor peso, sem alterar elegibilidade, limites, postos ou a prioridade dos acamados. Pontuações não informadas não são classificadas.'],
+  ['Restrições dos profissionais','Cada leito pode exigir atendimento exclusivamente por homem ou exclusivamente por mulher; elegibilidade é obrigatória, além das competências cadastradas.'],
+  ['Compartilhamento','Na geração automática, com número par de técnicos ninguém divide postos; com número ímpar e pacientes nos dois postos, somente a Escala 4 e/ou a Escala 7 podem dividir, preferindo apenas uma e usando ambas quando necessário para a proporcionalidade. Na edição manual, qualquer divisão é permitida e sinalizada.'],
+  ['Proximidade e poucos quartos','Manter leitos A/B juntos sempre que viável e reduzir circulação. Não substituir precauções e protocolos de controle de infecção.'],
+  ['Bloqueio e isolamento','Vago, bloqueado e bloqueado por isolamento são estados distintos de leitos não ocupados. Pacientes isolados permanecem “ocupados” com precaução registrada.'],
+  ['Imprevistos no plantão','Saída por falta, doença, remanejamento ou saída antecipada: preservar atribuições existentes sempre que possível. Registrar no histórico.']
+];return `<section class="panel"><div class="panel-header"><div><h2>Regras utilizadas pelo protótipo</h2><p class="panel-subtitle">Prioridades de segurança e preferências de distribuição.</p></div>
+  <span class="pill pill-amber">Validação humana obrigatória</span></div><div class="panel-body"><div class="rule-list">
+  ${rules.map(([title,body])=>`<div class="rule-item"><strong>${esc(title)}</strong><p>${esc(body)}</p></div>`).join('')}</div></div></section>
+  <section class="panel"><div class="panel-header"><h2>Dados, testes e privacidade</h2></div><div class="panel-body">
+  <p class="form-note">Esta versão salva as informações no armazenamento local do navegador, sem login, banco de dados, criptografia de aplicação ou sincronização. Não registre nomes nem dados identificadores de pacientes. Não use o protótipo como sistema assistencial oficial sem validação institucional, segurança da informação e testes operacionais.</p>
+  <div class="row-actions" style="margin-top:15px">
+    <button class="btn" data-action="json">↓ Fazer backup (JSON)</button>
+    <label class="btn" for="import-json" style="cursor:pointer">↑ Importar backup</label>
+    <input id="import-json" type="file" accept="application/json,.json" hidden />
+    <button class="btn" data-action="reset-demo">Recarregar demonstração</button>
+    <button class="btn btn-danger" data-action="reset-empty">Limpar ocupação</button>
+  </div></div></section>`;}
+function footer(){return `<p class="footer-note no-print">Protótipo de demonstração · Não substitui supervisão do enfermeiro, dimensionamento institucional ou precauções de prevenção de infecção.<br />
+    Dados armazenados apenas neste navegador; utilize o JSON para cópias de segurança. Sem dados identificadores de pacientes.</p>`;}
+function modalHtml(){const m=ui.modal;if(!m)return '';
+  if(m.type==='remove'){
+    const active=state.staff.filter(s=>s.active);
+    return `<div class="modal-overlay" role="presentation"><div class="modal" role="dialog" aria-modal="true" aria-label="Remanejamento de emergência">
+      <div class="modal-head"><div><p class="eyebrow">Intercorrência no plantão</p><h2>Retirar profissional da escala</h2></div><button class="modal-close" data-action="close-modal" aria-label="Fechar">×</button></div>
+      <div class="modal-body"><p class="modal-help">O sistema tentará redistribuir os pacientes sem mexer nas atribuições que puderem ser preservadas. O histórico guardará a versão anterior.</p>
+      <label class="label-field">Profissional que saiu <select id="removed-slot" class="control" style="width:100%">${active.map(s=>`<option value="${s.slot}" ${m.slot===s.slot?'selected':''}>Escala ${s.slot} · ${esc(s.name)}</option>`).join('')}</select></label>
+      <label class="label-field">Motivo da intercorrência <select id="removed-reason" class="control" style="width:100%">
+      <option value="Remanejamento para outro setor">Remanejamento para outro setor</option>
+      <option value="Falta">Falta</option><option value="Doença / afastamento">Doença / afastamento</option>
+      <option value="Saída antecipada">Saída antecipada</option><option value="Outro motivo">Outro motivo</option></select></label></div>
+      <div class="modal-foot"><button class="btn" data-action="close-modal">Cancelar</button><button class="btn btn-danger" data-action="remove-confirm">Retirar e redistribuir</button></div></div></div>`;
+  }
+  if(m.type==='assign'){
+    const bed=state.beds.find(x=>x.id===m.id);const staff=state.staff.filter(s=>s.active);
+    const chosen=state.assignment[m.id];
+    return `<div class="modal-overlay"><div class="modal" role="dialog" aria-modal="true" aria-label="Atribuição manual de paciente">
+      <div class="modal-head"><div><p class="eyebrow">Ajuste manual</p><h2>Leito ${esc(m.id)}</h2></div><button class="modal-close" data-action="close-modal" aria-label="Fechar">×</button></div>
+      <div class="modal-body"><p class="modal-help">${esc([bed?.bedridden?'Paciente acamado':null,bed?.enteral?'Sonda enteral':null,bed?.sexRestriction==='female'?'Somente profissional mulher':bed?.sexRestriction==='male'?'Somente profissional homem':null,bed?.isolation!=='none'?'Precaução adicional':null].filter(Boolean).join(' · ')||'Paciente sem restrições cadastradas')}</p>
+      <label class="label-field">Novo responsável <select id="manual-slot" class="control" style="width:100%">
+        ${staff.map(s=>`<option value="${s.slot}" ${chosen===s.slot?'selected':''}>Escala ${s.slot} · ${esc(s.name)}${canAttend(bed,s)?'':' (exceção — conferir)'}</option>`).join('')}</select></label>
+      <div class="notice warning"><span>ⓘ</span><div>Ajuste manual livre: as regras da geração automática podem ser ultrapassadas, mas serão sinalizadas como alertas e exigem conferência do enfermeiro responsável.</div></div></div>
+      <div class="modal-foot"><button class="btn" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="assign-confirm">Salvar ajuste</button></div></div></div>`;
+  }
+  return '';
+}
+function render(){const [ic,title]=VIEWS[ui.view];
+  const screen={schedule:scheduleView,edit:editorView,beds:bedsView,staff:staffView,history:historyView,rules:rulesView}[ui.view]();
+  $('#app').innerHTML=`<div class="app-shell"><aside class="sidebar"><div class="brand"><div class="brand-icon">✚</div>
+    <div><strong>Escala Assistencial</strong><span>Distribuição inteligente · v1.5</span></div></div>
+    <p class="nav-title">Espaço de trabalho</p><nav class="nav" aria-label="Navegação principal">
+      ${Object.entries(VIEWS).map(([id,[icon,label]])=>`<button class="nav-btn ${ui.view===id?'active':''}" data-view="${id}"><span class="nav-icon">${icon}</span>${esc(label)}</button>`).join('')}</nav>
+    <div class="sidebar-foot"><strong>● Armazenamento local</strong><p>Projeto estático para GitHub Pages. Não use dados identificadores de pacientes neste protótipo.</p></div>
+  </aside><main class="workspace">${header()}${screen}${fugulinPanel()}${state.includeVacancies?reportPanel():''}${state.printNotes?.trim()?`<section class="panel print-panel print-observations"><div class="panel-header"><h2>Observações do plantão</h2></div><div class="panel-body">${esc(state.printNotes)}</div></section>`:''}
+    ${state.manualOverride?`<div class="print-only print-manual-note"><strong>ATENÇÃO — ESCALA PERSONALIZADA MANUALMENTE.</strong> As atribuições foram ajustadas pelo usuário e podem contrariar as regras da distribuição automática; conferir proximidade, banhos, atribuições, restrições de atendimento e divisão dos postos antes do uso assistencial.</div>`:''}
+    <div class="print-only print-foot">Conferido por: ____________________________________ &nbsp;&nbsp; Assinatura: ____________________________<p>Escala provisória, sujeita à conferência e validação do(a) enfermeiro(a) responsável. Data/hora de impressão: ${esc(new Date().toLocaleString('pt-BR'))}.</p></div>
+    ${footer()}</main></div>${modalHtml()}${ui.toast?`<div class="toast ${ui.toast.error?'error':''}" role="status">${esc(ui.toast.message)}</div>`:''}`;
+}
+function tryGenerate(preserve=false){
+  const backup=clone(state.assignment);
+  const out=generateSchedule(state,{preserve});
+  if(out.ok){
+    record(preserve?'Antes da redistribuição':'Antes da geração',preserve?'Preservar distribuição anterior':'Nova distribuição');
+    state.assignment=out.assignment;state.stale=false;state.manualOverride=false;state.generatedAt=new Date().toISOString();state.lastError=[];
+    commit();const v=validateSchedule(state);
+    toast(v.errors.length?'Escala gerada com pendências de conferência.':v.warnings.length?'Escala gerada. Revise os alertas.':'Escala gerada e validada quanto às regras cadastradas.',!!v.errors.length);
+  } else {
+    state.assignment=backup;state.lastError=out.errors;state.stale=true;commit();toast('Não foi possível completar a distribuição. Consulte os alertas.',true);
+  }
+}
+function recalcAfterChange(){state.stale=true;state.demo=false;state.lastError=[];commit();}
+function removePerson(slot,reason){
+  const s=state.staff.find(x=>x.slot===slot);
+  if(!s||!s.active)return;
+  record('Saída de profissional',`Escala ${slot} · ${s.name} · ${reason}`);
+  const old=clone(state.assignment);
+  s.active=false;
+  state.assignment=Object.fromEntries(Object.entries(state.assignment).filter(([bed,person])=>Number(person)!==slot));
+  // Mantém dados anteriores ao remanejamento para preservar atribuições no novo cálculo.
+  const out=generateSchedule({...state,assignment:old},{preserve:true});
+  ui.modal=null;ui.view='schedule';
+  if(out.ok){state.assignment=out.assignment;state.stale=false;state.manualOverride=false;state.generatedAt=new Date().toISOString();state.lastError=[];
+    commit();toast(`Escala ${slot} retirada. Pacientes redistribuídos. Revise os alertas.`);
+  } else {state.lastError=out.errors;state.stale=true;commit();toast(`Profissional retirado, mas não foi possível redistribuir todos os pacientes.`,true);}
+}
+function openEditor(){
+  ui.view='edit';ui.draftAssignment=clone(state.assignment);ui.draftDirty=false;render();
+}
+function applyDraft(){
+  if(!ui.draftAssignment)return toast('Nenhum rascunho para salvar.',true);
+  const validation=validateSchedule(state,ui.draftAssignment,{manual:true});
+  record('Antes da personalização para impressão','Revisão manual da distribuição');
+  state.assignment=clone(ui.draftAssignment);state.stale=false;state.manualOverride=true;state.generatedAt=new Date().toISOString();state.lastError=[];
+  ui.draftDirty=false;commit();toast(validation.warnings.length?'Personalização salva. Revise os alertas antes de imprimir.':'Personalização salva e validada.');
+}
+function printConfirmed(){
+  if(ui.draftDirty && ui.draftAssignment) applyDraft();
+  state.manualOverride=true;state.stale=false;state.lastError=[];
+  ui.view='edit';safeLocalStore();render();window.print();
+}
+
+function manualAssign(id,slot){
+  const bed=state.beds.find(x=>x.id===id),person=state.staff.find(s=>s.active&&s.slot===slot);
+  if(!bed||bed.status!=='occupied'||!person)return toast('Escolha um leito ocupado e uma escala com profissional ativo.',true);
+  const draft={...state.assignment,[id]:slot};
+  const v=validateSchedule(state,draft,{manual:true});
+  record('Antes do ajuste manual',`Leito ${id}: Escala ${state.assignment[id]||'sem responsável'} → ${slot}`);
+  state.assignment=draft;state.stale=false;state.manualOverride=true;state.generatedAt=new Date().toISOString();state.lastError=[];ui.modal=null;ui.selectedBed=null;ui.draftAssignment=clone(state.assignment);ui.draftDirty=false;commit();
+  const checked=validateSchedule(state,draft,{manual:true});toast(checked.warnings.length?'Ajuste salvo. Confira a proporcionalidade.':'Atribuição atualizada.');
+}
+function download(filename,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function csvField(value){return '"'+String(value??'').replaceAll('"','""')+'"';}
+function exportCsv(){let out=[['Data',state.date],['Turno',state.shift==='day'?'Diurno':'Noturno'],['Enfermeiro responsável',state.responsible],[],
+    ['Posto','Leito','Situação','Escala','Profissional','Banho','Acamado','Sonda enteral','Restrição por sexo','Precaução adicional','Fugulin','Classificação Fugulin']];
+  for(const b of state.beds){const info=bedInfo(b.id),s=state.staff.find(s=>s.slot===Number(state.assignment[b.id]));
+    out.push([info.post,b.id,statusLabel(b.status),b.status==='occupied'?(s?.slot||'Pendente'):'',
+      b.status==='occupied'?s?.name||'Pendente':'',b.status==='occupied'?(bathApplies(b,state.shift)?'Sim':'Não'):'',
+      b.status==='occupied'?(b.bedridden?'Sim':'Não'):'',b.status==='occupied'?(b.enteral?'Sim':'Não'):'',
+      b.status==='occupied'?({female:'Somente mulher',male:'Somente homem',any:'Sem restrição'}[b.sexRestriction]||'Sem restrição'):'',b.status==='occupied'?ISOLATIONS[b.isolation]:'',b.status==='occupied'?(fugulinScore(b)??''):'',b.status==='occupied'?fugulinCategory(b):'']);
+  }
+  for(const post of ['A','B'])for(const status of ['vacant','blocked','isolation-blocked']){
+    out.push([]);out.push([`Posto ${post} - ${statusLabel(status)}`,state.beds.filter(b=>bedInfo(b.id).post===post&&b.status===status).map(x=>x.id).join(', ')]);
+  }
+  download(`escala-${state.date}-${state.shift}.csv`,'\ufeff'+out.map(r=>r.map(csvField).join(';')).join('\r\n'),'text/csv;charset=utf-8');toast('Arquivo CSV exportado.');}
+function exportJSON(){download(`backup-escala-${state.date}-${state.shift}.json`,JSON.stringify(state,null,2),'application/json;charset=utf-8');toast('Backup JSON exportado.');}
+async function importJSON(file){try{
+  if(file.size>2_500_000)throw Error('Arquivo muito grande.');
+  const data=JSON.parse(await file.text());
+  if(data.version!==1||!Array.isArray(data.beds)||!Array.isArray(data.staff)||data.beds.length!==46||data.staff.length!==9)throw Error('Backup incompatível.');
+  const ids=new Set(data.beds.map(x=>x.id));
+  if(BEDS.some(b=>!ids.has(b.id)))throw Error('A lista de leitos não corresponde ao setor.');
+  if(!confirm('Importar o backup substituirá os dados atuais deste navegador. Continuar?'))return;
+  localStorage.setItem(STORAGE,JSON.stringify(data));state=loadState();ui.view='schedule';ui.filter='';ui.bedFilter='all';commit();toast('Backup importado com sucesso.');
+}catch(e){toast(`Falha na importação: ${e.message}`,true);}}
+
+$('#app').addEventListener('click',e=>{
+  const tab=e.target.closest('[data-view]');if(tab){if(ui.view==='edit'&&ui.draftDirty&&tab.dataset.view!=='edit'&&!confirm('Há alterações não salvas no rascunho. Deseja descartá-las?'))return;if(tab.dataset.view==='edit')openEditor();else{ui.draftDirty=false;ui.draftAssignment=null;ui.view=tab.dataset.view;render();}return;}
+  const b=e.target.closest('[data-action]');if(!b)return;
+  const action=b.dataset.action;
+  if(action==='select-bed'){ui.selectedBed=ui.selectedBed===b.dataset.id?null:b.dataset.id;render();return;}
+  if(action==='move-selected'){if(ui.selectedBed)manualAssign(ui.selectedBed,Number(b.dataset.slot));else toast('Clique primeiro no leito que deseja mover.');return;}
+  if(action==='select-post'){state.beds.filter(x=>b.dataset.post==='all'||bedInfo(x.id).post===b.dataset.post).forEach(x=>ui.selectedBeds.add(x.id));render();return;}
+  if(action==='clear-selection'){ui.selectedBeds.clear();render();return;}
+  if(action==='bed-status'||action==='bulk-status'||action==='bulk-flag'){
+    const targets=state.beds.filter(x=>action==='bed-status'?x.id===b.dataset.id:ui.selectedBeds.has(x.id));
+    if(!targets.length)return;
+    record('Antes da atualização de leitos');
+    targets.forEach(x=>{if(action==='bulk-flag'){if(x.status==='occupied')x[b.dataset.field]=b.dataset.value==='true';}else{if(x.status!==b.dataset.status){Object.assign(x,{status:b.dataset.status,bedridden:false,enteral:false,sexRestriction:'any',womenOnly:false,isolation:'none',bath:'auto',fugulin:null});delete state.assignment[x.id];}}});
+    recalcAfterChange();return;
+  }
+  if(action==='close-modal'){ui.modal=null;render();return;}
+  if(action==='edit-open'){openEditor();return;}
+  if(action==='edit-check'){render();return;}
+  if(action==='edit-reset'){ui.draftAssignment=clone(state.assignment);ui.draftDirty=false;render();return;}
+  if(action==='edit-apply'){applyDraft();return;}
+  if(action==='edit-add'){
+    const bed=$('#quick-bed')?.value,slot=Number($('#quick-slot')?.value);
+    if(!occupied().some(b=>b.id===bed)||!state.staff.some(s=>s.active&&s.slot===slot))return toast('Escolha um leito ocupado e um profissional ativo.',true);
+    ui.draftAssignment ||= clone(state.assignment);
+    ui.draftAssignment[bed]=slot;ui.draftDirty=true;render();
+    toast(`Leito ${bed} acrescentado à Escala ${slot} no rascunho. Salve antes de imprimir.`);return;
+  }
+  if(action==='finalize-print'){printConfirmed();return;}
+  if(action==='generate'){if(ui.view==='edit'&&ui.draftDirty&&!confirm('As alterações não salvas serão descartadas ao gerar outra escala. Continuar?'))return;ui.draftDirty=false;ui.view='schedule';tryGenerate(false);return;}
+  if(action==='preserve'){if(ui.view==='edit'&&ui.draftDirty&&!confirm('As alterações não salvas serão descartadas ao redistribuir. Continuar?'))return;ui.draftDirty=false;ui.view='schedule';tryGenerate(true);return;}
+  if(action==='remove-modal'){
+    const active=state.staff.filter(s=>s.active);
+    if(!active.length)return toast('Não há profissionais ativos para retirar.',true);
+    ui.modal={type:'remove',slot:Number(b.dataset.slot)||active[0].slot};render();return;
+  }
+  if(action==='remove-confirm'){
+    const slot=Number($('#removed-slot')?.value),reason=$('#removed-reason')?.value||'Não informado';
+    removePerson(slot,reason);return;
+  }
+  if(action==='assign-modal'){ui.modal={type:'assign',id:b.dataset.id};render();return;}
+  if(action==='assign-confirm'){
+    if(!$('#manual-slot'))return;
+    manualAssign(ui.modal.id,Number($('#manual-slot').value));return;
+  }
+  if(action==='print'){openEditor();return;}
+  if(action==='csv'){exportCsv();return;}
+  if(action==='json'){exportJSON();return;}
+  if(action==='clear-filter'){ui.filter='';ui.bedFilter='all';render();return;}
+  if(action==='restore'){
+    const snapshot=state.history[Number(b.dataset.index)];if(!snapshot)return;
+    if(!confirm(`Restaurar a versão "${snapshot.action}" de ${new Date(snapshot.when).toLocaleString('pt-BR')}?`))return;
+    const before=clone(snapshot.state);record('Antes da restauração',`Versão de ${snapshot.when}`);
+    Object.assign(state,before);ui.view='schedule';commit();toast('Versão restaurada. Confira a escala.');return;
+  }
+  if(action==='reset-demo'||action==='reset-empty'){
+    if(!confirm(action==='reset-demo'?'Substituir todos os dados atuais pelo cenário fictício?':'Marcar todos os leitos como vagos e apagar a distribuição atual?'))return;
+    record('Antes da reinicialização');
+    const original=defaultState(action==='reset-demo');
+    state={...original,history:state.history,date:state.date,shift:state.shift};ui.view='schedule';commit();toast('Dados reinicializados.');return;
+  }
+});
+$('#app').addEventListener('change',e=>{
+  const x=e.target;
+  if(x.dataset.selectBed){if(x.checked)ui.selectedBeds.add(x.dataset.selectBed);else ui.selectedBeds.delete(x.dataset.selectBed);render();return;}
+  if(x.dataset.editBed){ui.draftAssignment ||= clone(state.assignment);if(x.value)ui.draftAssignment[x.dataset.editBed]=Number(x.value);else delete ui.draftAssignment[x.dataset.editBed];ui.draftDirty=true;const badge=$('#draft-state');if(badge){badge.textContent='Alterações não salvas';badge.className='pill pill-amber';}return;}
+  if(x.dataset.global){const k=x.dataset.global;state[k]=x.type==='checkbox'?x.checked:x.value;
+    if(k==='date'||k==='shift')recalcAfterChange();else commit();return;}
+  if(x.dataset.bed){const b=state.beds.find(z=>z.id===x.dataset.bed);if(!b)return;
+    const field=x.dataset.bedField;
+    if(field==='fugulin' && x.value!=='' && (!Number.isInteger(Number(x.value)) || Number(x.value)<9 || Number(x.value)>36)){toast('Informe Fugulin inteiro de 9 a 36, ou deixe vazio.',true);return;}
+    b[field]=field==='fugulin'?(x.value===''?null:Number(x.value)):x.type==='checkbox'?x.checked:x.value;
+    recalcAfterChange();return;}
+  if(x.dataset.staff){const s=state.staff.find(z=>z.slot===Number(x.dataset.staff));if(!s)return;
+    const field=x.dataset.staffField;s[field]=x.type==='checkbox'?x.checked:x.value;
+    recalcAfterChange();return;}
+  if(x.id==='bed-status-filter'){ui.bedFilter=x.value;render();return;}
+  if(x.id==='import-json'&&x.files?.[0]){importJSON(x.files[0]);return;}
+});
+$('#app').addEventListener('input',e=>{
+  if(e.target.id==='bed-search'){
+    const selectionStart=e.target.selectionStart;ui.filter=e.target.value;render();
+    const field=$('#bed-search');field?.focus();try{field?.setSelectionRange(selectionStart,selectionStart);}catch(_){/* search inputs */}
+  }
+});
+$('#app').addEventListener('keydown',e=>{
+  if(e.target.dataset.bedField!=='fugulin'||!['Enter','Tab'].includes(e.key))return;
+  const fields=[...document.querySelectorAll('[data-bed-field="fugulin"]')];
+  const index=fields.indexOf(e.target),next=fields[index+(e.shiftKey?-1:1)]?.dataset.bed;
+  if(!next&&e.key==='Tab')return;
+  e.preventDefault();e.target.dispatchEvent(new Event('change',{bubbles:true}));
+  if(next){const input=document.querySelector(`[data-bed="${next}"][data-bed-field="fugulin"]`);input?.focus();input?.select();}
+});
+$('#app').addEventListener('dragstart',e=>{const b=e.target.closest('[draggable][data-id]');if(!b)return;e.dataTransfer.setData('text/plain',b.dataset.id);e.dataTransfer.effectAllowed='move';});
+$('#app').addEventListener('dragover',e=>{if(e.target.closest('[data-drop-slot]')){e.preventDefault();e.dataTransfer.dropEffect='move';}});
+$('#app').addEventListener('drop',e=>{const r=e.target.closest('[data-drop-slot]');if(!r)return;e.preventDefault();manualAssign(e.dataTransfer.getData('text/plain'),Number(r.dataset.dropSlot));});
+$('#app').addEventListener('toggle',e=>{if(!e.target.isConnected)return;const id=e.target.dataset.detailBed;if(id){if(e.target.open)ui.openBeds.add(id);else ui.openBeds.delete(id);}},true);
+window.addEventListener('beforeprint',()=>{ui.view='edit';render();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ui.modal){ui.modal=null;render();}});
+render();
+
+</script>
+</body>
+</html>
